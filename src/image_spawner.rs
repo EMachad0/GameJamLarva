@@ -4,7 +4,7 @@ use std::path::Path;
 use bevy::prelude::*;
 use rand::{thread_rng, seq::SliceRandom};
 
-use crate::biome::{Biome};
+use crate::{biome::{Biome}, image_biome::ImageBiome};
 
 pub struct ImagesServer {
     images: Vec<ImagePls>,
@@ -43,6 +43,9 @@ pub fn spawn_image(mut commands: Commands, mut images_server: ResMut<ImagesServe
             texture: image.image.clone(),
             transform: Transform::from_xyz(360.0, 460.0, 2.0),
             ..default()
+        })
+        .insert(ImageBiome {
+            biome: image.biome,
         });
 
         images_server.runned = true;

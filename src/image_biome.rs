@@ -1,5 +1,8 @@
+use bevy::prelude::Component;
+
 use crate::biome::Biome;
 
+#[derive(Component)]
 pub struct ImageBiome {
-    biome: Biome,
+    pub biome: Biome,
 }
