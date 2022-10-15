@@ -4,6 +4,7 @@ mod camera;
 mod cursor_world_position;
 mod desktop;
 mod drag_and_drop;
+mod game_state;
 mod image_biome;
 mod image_spawner;
 mod ui;
@@ -12,13 +13,8 @@ use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use iyes_loopless::prelude::*;
 
-use ui::button::on_button_interaction;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum GameState {
-    MainMenu,
-    InGame,
-}
+use game_state::despawn_with;
+use game_state::GameState;
 
 fn main() {
     let mut app = App::new();
@@ -43,7 +39,8 @@ fn main() {
     app.add_event::<drag_and_drop::ClickEntity>()
         .add_event::<drag_and_drop::HoverEntity>()
         .add_event::<drag_and_drop::StartDragEntity>()
-        .add_event::<drag_and_drop::EndDragEntity>();
+        .add_event::<drag_and_drop::EndDragEntity>()
+        .add_event::<ui::typewriter::TypewriterFinished>();
 
     // Stages
     app.add_loopless_state(GameState::InGame);
@@ -57,6 +54,7 @@ fn main() {
 
     // Enter Systems
     app.add_enter_system(GameState::MainMenu, ui::main_menu::menu_setup)
+        .add_enter_system(GameState::MainDialog, ui::main_dialog::main_dialog_setup)
         .add_enter_system_set(
             GameState::InGame,
             SystemSet::new()
@@ -76,8 +74,19 @@ fn main() {
             .run_in_state(GameState::MainMenu)
             .with_system(ui::button::button_interaction_update)
             .with_system(
-                ui::main_menu::start_game
-                    .run_if(on_button_interaction::<ui::main_menu::StartGameButton>),
+                game_state::to_main_dialog
+                    .run_if(ui::button::on_button_interaction::<ui::main_menu::StartGameButton>),
+            )
+            .into(),
+    );
+    // MainDialog
+    app.add_system_set(
+        ConditionSet::new()
+            .run_in_state(GameState::MainDialog)
+            .with_system(ui::typewriter::typewriter_update)
+            .with_system(
+                game_state::to_in_game
+                    .run_if(ui::typewriter::on_typewriter_finish::<ui::main_menu::StartGameButton>),
             )
             .into(),
     );
@@ -106,11 +115,4 @@ fn main() {
 
     // Run
     app.run();
-}
-
-/// Despawn all entities with a given component type
-fn despawn_with<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
-    for entity in q.iter() {
-        commands.entity(entity).despawn_recursive();
-    }
 }

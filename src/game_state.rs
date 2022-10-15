@@ -1,0 +1,24 @@
+use bevy::prelude::*;
+use iyes_loopless::prelude::NextState;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum GameState {
+    MainMenu,
+    MainDialog,
+    InGame,
+}
+
+/// Despawn all entities with a given component type
+pub fn despawn_with<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
+    for entity in q.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+pub fn to_main_dialog(mut commands: Commands) {
+    commands.insert_resource(NextState(GameState::MainDialog));
+}
+
+pub fn to_in_game(mut commands: Commands) {
+    commands.insert_resource(NextState(GameState::InGame));
+}
