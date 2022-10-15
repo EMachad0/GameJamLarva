@@ -23,7 +23,10 @@ pub fn aabb_update(
 ) {
     for (mut aabb, transform, image_handle, sprite) in &mut query {
         let size = match sprite.custom_size {
-            None => images.get(image_handle).unwrap().size(),
+            None => match images.get(image_handle) {
+                None => continue,
+                Some(image) => image.size(),
+            },
             Some(size) => size,
         };
 
