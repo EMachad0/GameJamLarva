@@ -1,7 +1,6 @@
 use bevy::input::mouse::MouseButtonInput;
 use bevy::input::ButtonState;
 use bevy::prelude::*;
-use rand::Rng;
 
 use crate::aabb::AABB;
 use crate::cursor_world_position::CursorWorldPosition;
@@ -21,32 +20,6 @@ pub struct MouseInteractionBundle {
     pub draggable: Draggable,
     pub hoverable: Hoverable,
     pub aabb: AABB,
-}
-
-pub fn squares_setup(mut commands: Commands, windows: Res<Windows>) {
-    let window = windows.get_primary().unwrap();
-
-    let mut rng = rand::thread_rng();
-    let range_x = rand::distributions::Uniform::new(0.0, window.width());
-    let range_y = rand::distributions::Uniform::new(0.0, window.height());
-    for i in 0..10 {
-        commands
-            .spawn_bundle(SpriteBundle {
-                transform: Transform::from_translation(Vec3::new(
-                    rng.sample(range_x),
-                    rng.sample(range_y),
-                    1.0,
-                )),
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(100.0, 100.0)),
-                    color: Color::RED,
-                    ..default()
-                },
-                ..default()
-            })
-            .insert_bundle(MouseInteractionBundle::default())
-            .insert(Name::new(format!("Square {}", i)));
-    }
 }
 
 #[derive(Debug, Default, Deref, DerefMut)]

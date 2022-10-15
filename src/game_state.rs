@@ -9,7 +9,7 @@ pub enum GameState {
 }
 
 /// Despawn all entities with a given component type
-pub fn despawn_with<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
+pub fn despawn<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
     for entity in q.iter() {
         commands.entity(entity).despawn_recursive();
     }

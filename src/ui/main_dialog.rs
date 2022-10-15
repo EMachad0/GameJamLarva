@@ -4,13 +4,34 @@ use crate::ui::typewriter;
 use crate::ui::typewriter::{Typewriter, TypingTimer};
 
 #[derive(Component)]
+pub struct MainDialogBackground;
+
+#[derive(Component)]
+pub struct MainDialogUi;
+
+#[derive(Component)]
 pub struct MainDialog;
 
-pub fn main_dialog_setup(mut commands: Commands, asset_server: ResMut<AssetServer>) {
-    commands.insert_resource(TypingTimer(Timer::from_seconds(0.2, true)));
+pub fn main_dialog_background_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands
+        .spawn()
+        .insert_bundle(SpriteBundle {
+            sprite: Sprite {
+                anchor: bevy::sprite::Anchor::BottomLeft,
+                ..default()
+            },
+            texture: asset_server.load("img/background/loading_bg.png"),
+            ..default()
+        })
+        .insert(MainDialogUi);
+}
+
+pub fn main_dialog_ui_setup(mut commands: Commands, asset_server: ResMut<AssetServer>) {
+    commands.insert_resource(TypingTimer(Timer::from_seconds(0.15, true)));
 
     let container_entity = commands
-        .spawn_bundle(NodeBundle {
+        .spawn()
+        .insert_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 align_items: AlignItems::Center,
@@ -20,6 +41,7 @@ pub fn main_dialog_setup(mut commands: Commands, asset_server: ResMut<AssetServe
             color: Color::NONE.into(),
             ..default()
         })
+        .insert(MainDialogUi)
         .id();
 
     let bg_entity = commands
