@@ -4,6 +4,9 @@ mod cursor_world_position;
 mod desktop;
 mod drag_and_drop;
 mod ui;
+mod image_spawner;
+mod biome;
+mod image_biome;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
@@ -63,7 +66,8 @@ fn main() {
             SystemSet::new()
                 .with_system(desktop::spawn_desktop_background)
                 .with_system(desktop::spawn_folders)
-                .with_system(desktop::spawn_recycle_bin),
+                .with_system(desktop::spawn_recycle_bin)
+                .with_system(image_spawner::load_images),
         );
 
     // Exit Systems
@@ -92,6 +96,7 @@ fn main() {
             .run_in_state(GameState::InGame)
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
+            .with_system(image_spawner::spawn_image)
             .into(),
     );
 
