@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use crate::aabb::AABB;
-use crate::CursorWorldPosition;
+use crate::cursor_world_position::CursorWorldPosition;
 
 #[derive(Default, Component)]
 pub struct Clickable;

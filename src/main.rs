@@ -1,22 +1,18 @@
 mod aabb;
+mod biome;
 mod camera;
 mod cursor_world_position;
 mod desktop;
 mod drag_and_drop;
-mod ui;
-mod image_spawner;
-mod biome;
 mod image_biome;
+mod image_spawner;
+mod ui;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use iyes_loopless::prelude::*;
 
-use aabb::AABB;
-use cursor_world_position::CursorWorldPosition;
-use drag_and_drop::{ClickEntity, DraggingState, EndDragEntity, HoverEntity, StartDragEntity};
 use ui::button::on_button_interaction;
-use ui::main_menu::{MainMenu, StartGameButton};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum GameState {
@@ -37,17 +33,17 @@ fn main() {
             canvas: Some("#bevy".to_string()),
             ..default()
         })
-        .init_resource::<CursorWorldPosition>()
-        .init_resource::<DraggingState>();
+        .init_resource::<cursor_world_position::CursorWorldPosition>()
+        .init_resource::<drag_and_drop::DraggingState>();
 
     // Types
-    app.register_type::<AABB>();
+    app.register_type::<aabb::AABB>();
 
     // Events
-    app.add_event::<ClickEntity>()
-        .add_event::<HoverEntity>()
-        .add_event::<StartDragEntity>()
-        .add_event::<EndDragEntity>();
+    app.add_event::<drag_and_drop::ClickEntity>()
+        .add_event::<drag_and_drop::HoverEntity>()
+        .add_event::<drag_and_drop::StartDragEntity>()
+        .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
     app.add_loopless_state(GameState::InGame);
@@ -71,7 +67,7 @@ fn main() {
         );
 
     // Exit Systems
-    app.add_exit_system(GameState::MainMenu, despawn_with::<MainMenu>);
+    app.add_exit_system(GameState::MainMenu, despawn_with::<ui::main_menu::MainMenu>);
 
     // Systems
     // MainMenu
@@ -79,7 +75,10 @@ fn main() {
         ConditionSet::new()
             .run_in_state(GameState::MainMenu)
             .with_system(ui::button::button_interaction_update)
-            .with_system(ui::main_menu::start_game.run_if(on_button_interaction::<StartGameButton>))
+            .with_system(
+                ui::main_menu::start_game
+                    .run_if(on_button_interaction::<ui::main_menu::StartGameButton>),
+            )
             .into(),
     );
     // InGame
