@@ -3,6 +3,9 @@ mod camera;
 mod cursor_world_position;
 mod desktop;
 mod drag_and_drop;
+mod image_spawner;
+mod biome;
+mod image_biome;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
@@ -47,6 +50,8 @@ fn main() {
 
     // Enter Systems
 
+    app.add_startup_system(image_spawner::load_images);
+
     // Exit Systems
 
     // Systems
@@ -57,7 +62,8 @@ fn main() {
         );
 
     app.add_system(drag_and_drop::mouse_click)
-        .add_system(drag_and_drop::draggable_update);
+        .add_system(drag_and_drop::draggable_update)
+        .add_system(image_spawner::spawn_image);
 
     // Debug
     if cfg!(debug_assertions) {
