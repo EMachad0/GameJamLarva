@@ -1,7 +1,4 @@
 use bevy::prelude::*;
-use iyes_loopless::prelude::*;
-
-use crate::GameState;
 
 #[derive(Component)]
 pub struct MainMenu;
@@ -59,8 +56,4 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .entity(main_menu_entity)
         .push_children(&[button_start_game_entity]);
-}
-
-pub fn start_game(mut commands: Commands) {
-    commands.insert_resource(NextState(GameState::InGame));
 }

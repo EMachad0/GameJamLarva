@@ -1,8 +1,10 @@
 use std::{path::Path, time::Duration};
 
 const IMAGE_WIDTH: f32 = 300.0;
+const IMAGE_FIRST_LAYER: u32 = 2;
+
 use bevy::prelude::*;
-use rand::{seq::SliceRandom, thread_rng};
+use rand::{seq::SliceRandom, thread_rng, Rng, distributions::Uniform};
 
 use crate::{biome::Biome, drag_and_drop::MouseInteractionBundle, image_biome::ImageBiome};
 
@@ -10,7 +12,8 @@ pub struct ImageTimer(pub Timer);
 
 pub struct ImagesServer {
     images: Vec<ImagePls>,
-    runned: bool,
+    frame: Handle<Image>,
+    pub image_layer_count: u32,
 }
 
 pub struct ImagePls {
@@ -21,14 +24,15 @@ pub struct ImagePls {
 pub fn load_images(mut commands: Commands, asset_server: Res<AssetServer>) {
     let mut image_server = ImagesServer {
         images: Vec::new(),
-        runned: false,
+        frame: asset_server.load("img/frame.png"),
+        image_layer_count: IMAGE_FIRST_LAYER,
     };
 
     for biome in Biome::iterator() {
         for i in 1..21 {
             image_server.images.push(ImagePls {
                 image: asset_server.load(Path::new(&format!(
-                    "img/biomes/{}/{}_{:02}.jpg",
+                    "img/biome/{}/{}_{:02}.jpg",
                     biome, biome, i
                 ))),
                 biome: biome,
@@ -48,12 +52,13 @@ pub fn spawn_image(
     mut commands: Commands,
     mut images_server: ResMut<ImagesServer>,
     assets: Res<Assets<Image>>,
-    asset_server: Res<AssetServer>,
     mut timer: ResMut<ImageTimer>,
     time: Res<Time>,
 ) {
     if timer.0.tick(time.delta()).just_finished() {
         let mut rng = thread_rng();
+
+        images_server.image_layer_count += 1;
 
         let (image_s, image) = loop { 
             let random_image = images_server.images.choose(&mut rng).unwrap();
@@ -62,17 +67,22 @@ pub fn spawn_image(
                 Some(image) => break (random_image, image),
                 None => continue,
             }
-        }; 
+        };
 
         let width = image.texture_descriptor.size.width as f32;
         let height = image.texture_descriptor.size.height as f32;
 
         let image_size = image_sizer(width, height);
 
+        println!("{}, {}", image_size.x, image_size.y);
+
+        let x_pos = rng.sample(Uniform::new(image_size.x / 2.0, 1280.0 - (image_size.x / 2.0))) as f32;
+        let y_pos = rng.sample(Uniform::new(image_size.y / 2.0, 720.0 - (image_size.x / 2.0))) as f32;
+
         commands
             .spawn_bundle(SpriteBundle {
                 texture: image_s.image.clone(),
-                transform: Transform::from_xyz(360.0, 460.0, 2.0),
+                transform: Transform::from_xyz(x_pos, y_pos, images_server.image_layer_count as f32),
                 sprite: Sprite {
                     custom_size: Some(image_size),
                     ..default()
@@ -81,10 +91,10 @@ pub fn spawn_image(
             })
             .with_children(|image| {
                 image.spawn_bundle(SpriteBundle {
-                    texture: asset_server.load("frame.png"),
-                    transform: Transform::from_xyz(0.0, 12.0, 2.0),
+                    texture: images_server.frame.clone(),
+                    transform: Transform::from_xyz(0.0, 10.0, -0.5),
                     sprite: Sprite {
-                        custom_size: Some(Vec2::new(image_size.x, image_size.y + 25.0)),
+                        custom_size: Some(Vec2::new(image_size.x + 5.0, image_size.y + 25.0)),
                         ..default()
                     },
                     ..default()
@@ -95,7 +105,5 @@ pub fn spawn_image(
             })
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new("Imagem"));
-
-        images_server.runned = true;
     }
 }
