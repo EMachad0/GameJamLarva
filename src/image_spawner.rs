@@ -1,10 +1,12 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 const IMAGE_WIDTH: f32 = 300.0;
 use bevy::prelude::*;
 use rand::{seq::SliceRandom, thread_rng};
 
-use crate::{biome::Biome, image_biome::ImageBiome, drag_and_drop::MouseInteractionBundle};
+use crate::{biome::Biome, drag_and_drop::MouseInteractionBundle, image_biome::ImageBiome};
+
+pub struct ImageTimer(pub Timer);
 
 pub struct ImagesServer {
     images: Vec<ImagePls>,
@@ -13,7 +15,6 @@ pub struct ImagesServer {
 
 pub struct ImagePls {
     image: Handle<Image>,
-    size: Option<Size>,
     biome: Biome,
 }
 
@@ -31,7 +32,6 @@ pub fn load_images(mut commands: Commands, asset_server: Res<AssetServer>) {
                     biome, biome, i
                 ))),
                 biome: biome,
-                size: None,
             });
         }
     }
@@ -48,65 +48,54 @@ pub fn spawn_image(
     mut commands: Commands,
     mut images_server: ResMut<ImagesServer>,
     assets: Res<Assets<Image>>,
-    mut ev_asset: EventReader<AssetEvent<Image>>,
     asset_server: Res<AssetServer>,
+    mut timer: ResMut<ImageTimer>,
+    time: Res<Time>,
 ) {
-    if !images_server.runned {
-        for ev in ev_asset.iter() {
-            if images_server.runned { continue; }
-            match ev {
-                AssetEvent::Created { handle } => {
-                    for image_s in &images_server.images {
-                        if *handle == image_s.image {
-                            let image = assets.get(&handle).unwrap();
+    if timer.0.tick(time.delta()).just_finished() {
+        let mut rng = thread_rng();
 
-                            let width = image.texture_descriptor.size.width as f32;
-                            let height = image.texture_descriptor.size.height as f32;
+        let (image_s, image) = loop { 
+            let random_image = images_server.images.choose(&mut rng).unwrap();
 
-                            let image_size = image_sizer(width, height);
-
-                            commands
-                                .spawn_bundle(SpriteBundle {
-                                    texture: handle.clone(),
-                                    transform: Transform::from_xyz(360.0, 460.0, 2.0),
-                                    sprite: Sprite {
-                                        custom_size: Some(image_size),
-                                        ..default()
-                                    },
-                                    ..default()
-                                })
-                                .with_children(|image| {
-                                    image.spawn_bundle(SpriteBundle {
-                                        texture: asset_server.load("frame.png"),
-                                        transform: Transform::from_xyz(0.0, 12.0, 2.0),
-                                        sprite: Sprite {
-                                            custom_size: Some(Vec2::new(image_size.x, image_size.y + 25.0)),
-                                            ..default()
-                                        },
-                                        ..default()
-                                    });
-                                    image.spawn_bundle(SpriteBundle {
-                                        transform: Transform::from_xyz(0.0, 12.0, 0.0),
-                                        sprite: Sprite {
-                                            color: Color::BLUE,
-                                            custom_size: Some(Vec2::new(image_size.x, image_size.y + 20.0)),
-                                            ..default()
-                                        },
-                                        ..default()
-                                    });
-                                })
-                                .insert(ImageBiome { biome: image_s.biome })
-                                .insert_bundle(MouseInteractionBundle::default())
-                                .insert(Name::new("Imagem"));
-
-                            images_server.runned = true;
-                            break;
-                        }
-                    }
-                },
-                _ => {}
+            match assets.get(&random_image.image) {
+                Some(image) => break (random_image, image),
+                None => continue,
             }
-            if images_server.runned { break; }
-        }
+        }; 
+
+        let width = image.texture_descriptor.size.width as f32;
+        let height = image.texture_descriptor.size.height as f32;
+
+        let image_size = image_sizer(width, height);
+
+        commands
+            .spawn_bundle(SpriteBundle {
+                texture: image_s.image.clone(),
+                transform: Transform::from_xyz(360.0, 460.0, 2.0),
+                sprite: Sprite {
+                    custom_size: Some(image_size),
+                    ..default()
+                },
+                ..default()
+            })
+            .with_children(|image| {
+                image.spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("frame.png"),
+                    transform: Transform::from_xyz(0.0, 12.0, 2.0),
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(image_size.x, image_size.y + 25.0)),
+                        ..default()
+                    },
+                    ..default()
+                });
+            })
+            .insert(ImageBiome {
+                biome: image_s.biome,
+            })
+            .insert_bundle(MouseInteractionBundle::default())
+            .insert(Name::new("Imagem"));
+
+        images_server.runned = true;
     }
 }

@@ -8,8 +8,11 @@ mod image_biome;
 mod image_spawner;
 mod ui;
 
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
+use image_spawner::ImageTimer;
 use iyes_loopless::prelude::*;
 
 use ui::button::on_button_interaction;
@@ -34,7 +37,8 @@ fn main() {
             ..default()
         })
         .init_resource::<cursor_world_position::CursorWorldPosition>()
-        .init_resource::<drag_and_drop::DraggingState>();
+        .init_resource::<drag_and_drop::DraggingState>()
+        .insert_resource(ImageTimer(Timer::from_seconds(2.0, true)));
 
     // Types
     app.register_type::<aabb::AABB>();
