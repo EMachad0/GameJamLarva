@@ -39,8 +39,7 @@ fn main() {
     app.add_event::<drag_and_drop::ClickEntity>()
         .add_event::<drag_and_drop::HoverEntity>()
         .add_event::<drag_and_drop::StartDragEntity>()
-        .add_event::<drag_and_drop::EndDragEntity>()
-        .add_event::<ui::typewriter::TypewriterFinished>();
+        .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
     app.add_loopless_state(GameState::MainMenu);
@@ -104,9 +103,11 @@ fn main() {
         ConditionSet::new()
             .run_in_state(GameState::MainDialog)
             .with_system(ui::typewriter::typewriter_update)
+            .with_system(ui::typewriter::finished_typewriter_update)
+            .with_system(ui::typewriter::typewriter_skip_input)
             .with_system(
                 game_state::to_in_game
-                    .run_if(ui::typewriter::on_typewriter_finish::<ui::main_dialog::MainDialog>),
+                    .run_if(ui::typewriter::after_typewriter_finish::<ui::main_dialog::MainDialog>),
             )
             .into(),
     );
