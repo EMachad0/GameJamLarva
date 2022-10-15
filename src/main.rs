@@ -1,4 +1,5 @@
 mod camera;
+mod desktop;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
@@ -23,6 +24,9 @@ fn main() {
 
     // Setup Systems
     app.add_startup_system(camera::camera_setup);
+    app.add_startup_system(desktop::spawn_desktop_background);
+    app.add_startup_system(desktop::spawn_folders);
+    app.add_startup_system(desktop::spawn_recycle_bin);
 
     // Enter Systems
 

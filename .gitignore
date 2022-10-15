@@ -135,3 +135,5 @@ Cargo.lock
 .idea
 dist
 dist.zip
+
+.DS_Store
