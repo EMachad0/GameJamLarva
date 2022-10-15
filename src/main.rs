@@ -79,8 +79,8 @@ fn main() {
         SystemSet::new()
             .with_system(despawn::<ui::main_menu::MainMenuBackGround>)
             .with_system(despawn::<ui::main_menu::MainMenuUi>),
-    );
-    app.add_exit_system_set(
+    )
+    .add_exit_system_set(
         GameState::MainDialog,
         SystemSet::new()
             .with_system(despawn::<ui::main_dialog::MainDialogBackground>)
@@ -118,8 +118,8 @@ fn main() {
             .with_system(aabb::aabb_update)
             .with_system(cursor_world_position::cursor_world_position_update)
             .into(),
-    );
-    app.add_system_set(
+    )
+    .add_system_set(
         ConditionSet::new()
             .run_in_state(GameState::InGame)
             .with_system(drag_and_drop::mouse_click)
