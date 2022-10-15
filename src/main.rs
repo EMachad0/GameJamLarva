@@ -1,5 +1,6 @@
+mod camera;
+
 use bevy::prelude::*;
-use bevy::render::camera::WindowOrigin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
 fn main() {
@@ -21,7 +22,7 @@ fn main() {
     // Types
 
     // Setup Systems
-    app.add_startup_system(camera_setup);
+    app.add_startup_system(camera::camera_setup);
 
     // Enter Systems
 
@@ -36,14 +37,4 @@ fn main() {
 
     // Run
     app.run();
-}
-
-pub fn camera_setup(mut commands: Commands) {
-    commands.spawn_bundle(Camera2dBundle {
-        projection: OrthographicProjection {
-            window_origin: WindowOrigin::BottomLeft,
-            ..default()
-        },
-        ..default()
-    });
 }
