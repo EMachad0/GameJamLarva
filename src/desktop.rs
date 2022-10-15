@@ -22,7 +22,7 @@ pub fn spawn_desktop_background(mut commands: Commands, asset_server: Res<AssetS
                 anchor: bevy::sprite::Anchor::BottomLeft,
                 ..default()
             },
-            texture: asset_server.load("desktop_bg.png"),
+            texture: asset_server.load("img/background/desktop_bg.png"),
             ..default()
         })
         .insert(DesktopBackgruound {})
@@ -36,7 +36,7 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
     for i in 0..5 {
         commands
             .spawn_bundle(SpriteBundle {
-                texture: asset_server.load("folder.png"),
+                texture: asset_server.load("img/folder.png"),
                 transform: Transform::from_xyz(x, y - (FOLDERS_SPACING * i as f32), FOLDERS_LAYER),
                 ..default()
             })
@@ -66,7 +66,7 @@ pub fn spawn_recycle_bin(mut commands: Commands, asset_server: Res<AssetServer>)
         .spawn()
         .insert(RecycleBin {})
         .insert_bundle(SpriteBundle {
-            texture: asset_server.load("recycle-bin.png"),
+            texture: asset_server.load("img/recycle-bin.png"),
             transform: Transform::from_xyz(RECYCLE_BIN_POS.x, RECYCLE_BIN_POS.y, FOLDERS_LAYER),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(60.0, 60.0)),

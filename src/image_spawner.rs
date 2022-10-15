@@ -27,7 +27,7 @@ pub fn load_images(mut commands: Commands, asset_server: Res<AssetServer>) {
         for i in 1..21 {
             image_server.images.push(ImagePls {
                 image: asset_server.load(Path::new(&format!(
-                    "img/biomes/{}/{}_{:02}.jpg",
+                    "img/biome/{}/{}_{:02}.jpg",
                     biome, biome, i
                 ))),
                 biome: biome,
@@ -77,7 +77,7 @@ pub fn spawn_image(
                                 })
                                 .with_children(|image| {
                                     image.spawn_bundle(SpriteBundle {
-                                        texture: asset_server.load("frame.png"),
+                                        texture: asset_server.load("img/frame.png"),
                                         transform: Transform::from_xyz(0.0, 12.0, 2.0),
                                         sprite: Sprite {
                                             custom_size: Some(Vec2::new(image_size.x, image_size.y + 25.0)),
