@@ -7,7 +7,7 @@ const FOLDERS_LAYER: f32 = 1.0;
 const FOLDERS_SPACING: f32 = 90.0;
 
 #[derive(Component)]
-struct DesktopBackgruound;
+struct DesktopBackground;
 
 #[derive(Component)]
 struct Folder;
@@ -25,7 +25,7 @@ pub fn spawn_desktop_background(mut commands: Commands, asset_server: Res<AssetS
             texture: asset_server.load("img/background/desktop_bg.png"),
             ..default()
         })
-        .insert(DesktopBackgruound)
+        .insert(DesktopBackground)
         .insert(Name::new("DesktopBackground"));
 }
 
