@@ -48,8 +48,13 @@ fn main() {
     app.add_plugins(DefaultPlugins);
 
     // Setup Systems
-    app.add_startup_system(camera::camera_setup)
-        .add_system(image_spawner::load_images);
+    app.add_startup_system(camera::camera_setup);
+    app.add_startup_system_set(
+        SystemSet::new()
+            .with_system(ui::main_menu::main_menu_background_load)
+            .with_system(ui::loading::loading_background_load)
+            .with_system(image_spawner::load_images),
+    );
 
     // Enter Systems
     app.add_enter_system_set(
@@ -61,7 +66,7 @@ fn main() {
     .add_enter_system_set(
         GameState::MainDialog,
         SystemSet::new()
-            .with_system(ui::main_dialog::main_dialog_background_setup)
+            .with_system(ui::loading::loading_background_setup)
             .with_system(ui::main_dialog::main_dialog_ui_setup),
     )
     .add_enter_system_set(
@@ -76,13 +81,13 @@ fn main() {
     app.add_exit_system_set(
         GameState::MainMenu,
         SystemSet::new()
-            .with_system(despawn::<ui::main_menu::MainMenuBackGround>)
+            .with_system(despawn::<ui::main_menu::MainMenuBackground>)
             .with_system(despawn::<ui::main_menu::MainMenuUi>),
     )
     .add_exit_system_set(
         GameState::MainDialog,
         SystemSet::new()
-            .with_system(despawn::<ui::main_dialog::MainDialogBackground>)
+            .with_system(despawn::<ui::loading::LoadingBackground>)
             .with_system(despawn::<ui::main_dialog::MainDialogUi>),
     );
 

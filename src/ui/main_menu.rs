@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 
+pub struct MainMenuBackgroundImage {
+    image_handle: Handle<Image>,
+}
+
 #[derive(Component)]
-pub struct MainMenuBackGround;
+pub struct MainMenuBackground;
 
 #[derive(Component)]
 pub struct MainMenuUi;
@@ -9,7 +13,15 @@ pub struct MainMenuUi;
 #[derive(Component)]
 pub struct StartGameButton;
 
-pub fn main_menu_background_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn main_menu_background_load(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let image_handle = asset_server.load("img/background/main_menu_bg.png");
+    commands.insert_resource(MainMenuBackgroundImage { image_handle });
+}
+
+pub fn main_menu_background_setup(
+    mut commands: Commands,
+    background: Res<MainMenuBackgroundImage>,
+) {
     commands
         .spawn()
         .insert_bundle(SpriteBundle {
@@ -17,10 +29,10 @@ pub fn main_menu_background_setup(mut commands: Commands, asset_server: Res<Asse
                 anchor: bevy::sprite::Anchor::BottomLeft,
                 ..default()
             },
-            texture: asset_server.load("img/background/main_menu_bg.png"),
+            texture: background.image_handle.clone_weak(),
             ..default()
         })
-        .insert(MainMenuBackGround);
+        .insert(MainMenuBackground);
 }
 
 pub fn main_menu_ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {

@@ -4,27 +4,10 @@ use crate::ui::typewriter;
 use crate::ui::typewriter::{Typewriter, TypingTimer};
 
 #[derive(Component)]
-pub struct MainDialogBackground;
-
-#[derive(Component)]
 pub struct MainDialogUi;
 
 #[derive(Component)]
 pub struct MainDialog;
-
-pub fn main_dialog_background_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands
-        .spawn()
-        .insert_bundle(SpriteBundle {
-            sprite: Sprite {
-                anchor: bevy::sprite::Anchor::BottomLeft,
-                ..default()
-            },
-            texture: asset_server.load("img/background/loading_bg.png"),
-            ..default()
-        })
-        .insert(MainDialogUi);
-}
 
 pub fn main_dialog_ui_setup(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     commands.insert_resource(TypingTimer(Timer::from_seconds(0.15, true)));
