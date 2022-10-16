@@ -18,7 +18,6 @@ pub fn tutorial_update(
     mut status: ResMut<TutorialStatus>,
 ) {
     let (mut text, mut typewriter) = query.get_single_mut().unwrap();
-    debug!("{:?}", typewriter);
 
     if typewriter.waited() {
         status.paragraph += 1;
