@@ -21,10 +21,6 @@ pub fn init_resource<R: Resource + Default>(mut commands: Commands) {
     commands.insert_resource(R::default());
 }
 
-pub fn to_main_menu(mut commands: Commands) {
-    commands.insert_resource(NextState(GameState::MainMenu));
-}
-
 pub fn to_main_dialog(mut commands: Commands) {
     commands.insert_resource(NextState(GameState::MainDialog));
 }

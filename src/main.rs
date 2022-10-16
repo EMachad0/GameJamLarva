@@ -203,7 +203,7 @@ fn main() {
             .run_in_state(GameState::EndMenu)
             .with_system(ui::button::button_interaction_update)
             .with_system(
-                game_state::to_main_menu
+                game_state::to_in_game
                     .run_if(ui::button::on_button_interaction::<ui::end_menu::BackToMenuButton>),
             )
             .into(),

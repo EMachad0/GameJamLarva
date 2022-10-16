@@ -206,7 +206,7 @@ pub fn end_game_ui_setup(
                     })
                     .with_children(|btn| {
                         btn.spawn_bundle(TextBundle {
-                            text: Text::from_section("Main Menu", button_text_style.clone()),
+                            text: Text::from_section("Play Again", button_text_style.clone()),
                             ..default()
                         });
                     })
@@ -218,5 +218,3 @@ pub fn end_game_ui_setup(
     commands.entity(root.entity).add_child(container);
     commands.entity(container).add_child(background);
 }
-
-
