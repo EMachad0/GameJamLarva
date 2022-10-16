@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use iyes_loopless::prelude::NextState;
+use bevy::ecs::system::Resource;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -21,4 +22,8 @@ pub fn to_main_dialog(mut commands: Commands) {
 
 pub fn to_in_game(mut commands: Commands) {
     commands.insert_resource(NextState(GameState::InGame));
+}
+
+pub fn init_resource<R: Resource + Default>(mut commands: Commands) {
+    commands.insert_resource(R::default());
 }
