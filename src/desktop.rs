@@ -1,6 +1,11 @@
 use bevy::prelude::*;
 
-use crate::{drag_and_drop::{MouseInteractionBundle, StartDragEntity, EndDragEntity}, biome::Biome, cursor_world_position::CursorWorldPosition, aabb::AABB};
+use crate::{
+    aabb::AABB,
+    biome::Biome,
+    cursor_world_position::CursorWorldPosition,
+    drag_and_drop::{DraggingState, MouseInteractionBundle},
+};
 
 const RECYCLE_BIN_POS: Vec2 = Vec2::new(60.0, 670.0);
 const FOLDERS_LAYER: f32 = 1.0;
@@ -16,6 +21,9 @@ pub struct Folder {
 
 #[derive(Component)]
 pub struct RecycleBin;
+
+#[derive(Component)]
+pub struct Frame;
 
 pub fn spawn_desktop_background(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
@@ -58,9 +66,7 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 });
             })
-            .insert(Folder {
-                biome
-            })
+            .insert(Folder { biome })
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new(format!("Folder {}", i)));
         i += 1;
@@ -69,6 +75,7 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 pub fn hover_folder(
     mut query_folders: Query<(&mut Sprite, &AABB), With<Folder>>,
+    dragging_state: ResMut<DraggingState>,
     cursor: Res<CursorWorldPosition>,
 ) {
     let cursor_position = match **cursor {
@@ -77,7 +84,7 @@ pub fn hover_folder(
     };
 
     for (mut sprite, aabb) in query_folders.iter_mut() {
-        *sprite = if aabb.inside(cursor_position) {
+        *sprite = if aabb.inside(cursor_position) && dragging_state.entity.is_some() {
             Sprite {
                 color: Color::BLUE,
                 ..default()

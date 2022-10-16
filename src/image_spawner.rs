@@ -11,8 +11,8 @@ use crate::{
     aabb::AABB,
     biome::Biome,
     cursor_world_position::CursorWorldPosition,
-    desktop::Folder,
-    drag_and_drop::{EndDragEntity, MouseInteractionBundle, StartDragEntity},
+    desktop::{Folder, Frame},
+    drag_and_drop::{DraggingState, EndDragEntity, MouseInteractionBundle, StartDragEntity},
 };
 
 #[derive(Component)]
@@ -60,46 +60,66 @@ pub fn image_sizer(width: f32, height: f32) -> Vec2 {
     Vec2::new(IMAGE_WIDTH, IMAGE_WIDTH / (width / height))
 }
 
+pub fn sprite_alpha_update(
+    query: Query<(&Sprite, &Children), (Changed<Sprite>, With<SpawnedImage>)>,
+    mut frame_query: Query<&mut Sprite, (With<Frame>, Without<SpawnedImage>)>,
+) {
+    for (sprite, children) in query.iter() {
+        for child in children.iter() {
+            let mut frame_sprite = frame_query.get_mut(*child).unwrap();
+
+            frame_sprite.color.set_a(sprite.color.a());
+        }
+    }
+}
+
 pub fn image_drag(
     mut events: EventReader<StartDragEntity>,
-    mut query: Query<(&mut SpawnedImage, &mut Sprite, &mut Transform, &Children)>,
+    mut query: Query<(&mut Sprite, &mut Transform), With<SpawnedImage>>,
+    dragging_state: ResMut<DraggingState>,
     mut images_server: ResMut<ImagesServer>,
 ) {
-    for ev in events.iter() {
-        let (_, mut sprite, mut transform, children) = match query.get_mut(ev.entity) {
-            Ok(entity) => entity,
-            Err(_) => continue,
-        };
+    for _ in events.iter() {
+        if let Some(entity) = dragging_state.entity {
+            let (mut sprite, mut transform) = match query.get_mut(entity) {
+                Ok(entity) => entity,
+                Err(_) => continue,
+            };
 
-        images_server.image_layer_count += 1;
-        transform.translation.z = images_server.image_layer_count as f32;
+            images_server.image_layer_count += 1;
+            transform.translation.z = images_server.image_layer_count as f32;
 
-        sprite.color.set_a(0.2);
+            sprite.color.set_a(0.2);
+        }
     }
 }
 
 pub fn image_drop(
     mut commands: Commands,
-    mut query_images: Query<(&mut SpawnedImage, &mut Children)>,
+    mut query_images: Query<(&SpawnedImage, &mut Sprite, &Children)>,
     query_folders: Query<(&Folder, &AABB)>,
     mut ev_drop: EventReader<EndDragEntity>,
     cursor: Res<CursorWorldPosition>,
 ) {
-    let cursor_position = match **cursor {
-        None => return,
-        Some(p) => p,
-    };
-
     for ev in ev_drop.iter() {
+        let cursor_position = match **cursor {
+            None => return,
+            Some(p) => p,
+        };
+
         let entity = ev.entity;
 
-        let (image, children) = match query_images.get_mut(ev.entity) {
+        let (image, mut sprite, children) = match query_images.get_mut(ev.entity) {
             Ok(entity) => entity,
             Err(_) => continue,
         };
 
+        let mut disappeared = false;
+        // TODO: find a way to determine the folder a file will drop in
         for (folder, aabb) in query_folders.iter() {
             if aabb.inside(cursor_position) {
+                disappeared = true;
+
                 println!("Image biome: {}", image.biome);
                 println!("Folder bione: {}", folder.biome);
 
@@ -107,7 +127,12 @@ pub fn image_drop(
                     commands.entity(*child).despawn();
                 }
                 commands.entity(entity).despawn();
+                break;
             }
+        }
+
+        if !disappeared {
+            sprite.color.set_a(1.0);
         }
     }
 }
@@ -162,15 +187,17 @@ pub fn spawn_image(
                 ..default()
             })
             .with_children(|image| {
-                image.spawn_bundle(SpriteBundle {
-                    texture: images_server.frame.clone(),
-                    transform: Transform::from_xyz(0.0, 10.0, -0.5),
-                    sprite: Sprite {
-                        custom_size: Some(Vec2::new(image_size.x + 5.0, image_size.y + 25.0)),
+                image
+                    .spawn_bundle(SpriteBundle {
+                        texture: images_server.frame.clone(),
+                        transform: Transform::from_xyz(0.0, 10.0, -0.5),
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(image_size.x + 5.0, image_size.y + 25.0)),
+                            ..default()
+                        },
                         ..default()
-                    },
-                    ..default()
-                });
+                    })
+                    .insert(Frame);
             })
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new("Imagem"))

@@ -141,6 +141,7 @@ fn main() {
             .with_system(image_spawner::image_drag)
             .with_system(desktop::hover_folder)
             .with_system(image_spawner::image_drop)
+            .with_system(image_spawner::sprite_alpha_update)
             .into(),
     );
 
