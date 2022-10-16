@@ -7,8 +7,8 @@ mod drag_and_drop;
 mod game_state;
 mod game_timer;
 mod image;
-mod ui;
 mod score;
+mod ui;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
@@ -34,7 +34,9 @@ fn main() {
         .init_resource::<cursor_world_position::CursorWorldPosition>()
         .init_resource::<drag_and_drop::DraggingState>()
         .insert_resource(ImageTimer(Timer::from_seconds(2.0, true)))
-        .init_resource::<score::Score>();
+        .init_resource::<score::Score>()
+        .init_resource::<game_timer::PreGameTimer>()
+        .init_resource::<game_timer::GameTimer>();
 
     // Types
     app.register_type::<aabb::AABB>();
@@ -46,20 +48,21 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::InGame);
+    app.add_loopless_state(GameState::MainMenu);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
 
     // Setup Systems
-    app.add_startup_system(camera::camera_setup);
-    app.add_startup_system(ui::root_ui::ui_setup);
-    app.add_startup_system_set(
-        SystemSet::new()
-            .with_system(ui::main_menu::main_menu_background_load)
-            .with_system(ui::loading::loading_background_load)
-            .with_system(image::load_images),
-    );
+    app.add_startup_system_to_stage(StartupStage::PreStartup, camera::camera_setup)
+        .add_startup_system_to_stage(StartupStage::PreStartup, ui::root_ui::ui_setup)
+        .add_startup_system(ui::dialog::dialog_ui_setup)
+        .add_startup_system_set(
+            SystemSet::new()
+                .with_system(ui::main_menu::main_menu_background_load)
+                .with_system(ui::loading::loading_background_load)
+                .with_system(image::load_images),
+        );
 
     // Enter Systems
     app.add_enter_system_set(
@@ -72,17 +75,16 @@ fn main() {
         GameState::MainDialog,
         SystemSet::new()
             .with_system(ui::loading::loading_background_setup)
-            .with_system(ui::dialog::dialog_ui_setup)
             .with_system(game_state::init_resource::<ui::main_dialog::MainDialogStatus>),
     )
     .add_enter_system_set(
         GameState::InGame,
         SystemSet::new()
-            .with_system(game_state::init_resource::<ui::tutorial::TutorialStatus>)
+            .with_system(game_state::init_resource::<ui::tutorial_dialog::TutorialDialogStatus>)
+            .with_system(game_state::init_resource::<ui::timer_dialog::TimerDialogStatus>)
             .with_system(game_timer::pre_game_timer_setup)
             .with_system(game_timer::game_timer_setup)
-            .with_system(ui::dialog::dialog_ui_setup)
-            .with_system(ui::game_timer::game_timer_ui_setup.after(ui::dialog::dialog_ui_setup))
+            .with_system(ui::game_timer::game_timer_ui_setup)
             .with_system(desktop::spawn_desktop_background)
             .with_system(desktop::spawn_folders)
             .with_system(desktop::spawn_recycle_bin)
@@ -98,9 +100,7 @@ fn main() {
     )
     .add_exit_system_set(
         GameState::MainDialog,
-        SystemSet::new()
-            .with_system(despawn::<ui::loading::LoadingBackground>)
-            .with_system(despawn::<ui::dialog::DialogUi>),
+        SystemSet::new().with_system(despawn::<ui::loading::LoadingBackground>),
     );
 
     // Systems
@@ -138,26 +138,33 @@ fn main() {
     .add_system_set(
         ConditionSet::new()
             .run_in_state(GameState::InGame)
-            .with_system(despawn::<ui::dialog::DialogUi>.run_if(ui::tutorial::tutorial_finished))
-            .with_system(ui::tutorial::tutorial_update.run_if_not(ui::tutorial::tutorial_finished))
+            .with_system(
+                ui::tutorial_dialog::tutorial_dialog_update
+                    .run_if_not(ui::tutorial_dialog::tutorial_finished),
+            )
             .with_system(ui::typewriter::typewriter_update)
             .with_system(ui::typewriter::finished_typewriter_update)
             .with_system(ui::typewriter::typewriter_skip_input)
-            .with_system(
-                ui::game_timer::game_timer_ui_update.run_if(game_timer::pre_game_timer_finished),
-            )
             .with_system(game_timer::tick::<game_timer::PreGameTimer>)
-            .with_system(
-                game_timer::tick::<game_timer::GameTimer>
-                    .run_if(game_timer::pre_game_timer_finished),
-            )
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
-            .with_system(image::spawn_image.run_if(ui::tutorial::tutorial_finished))
+            .with_system(image::spawn_image.run_if(ui::tutorial_dialog::tutorial_finished))
             .with_system(image::image_drag)
             .with_system(desktop::hover_folder)
             .with_system(image::image_drop)
             .with_system(image::sprite_alpha_update)
+            .into(),
+    )
+    .add_system_set(
+        ConditionSet::new()
+            .run_in_state(GameState::InGame)
+            .run_if(game_timer::pre_game_timer_finished)
+            .with_system(game_timer::tick::<game_timer::GameTimer>)
+            .with_system(ui::game_timer::game_timer_ui_update)
+            .with_system(
+                ui::timer_dialog::timer_dialog_update
+                    .run_if_not(ui::timer_dialog::timer_dialog_finished),
+            )
             .into(),
     );
 

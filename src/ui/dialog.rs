@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 
-use crate::ui::typewriter;
 use crate::ui::root_ui::RootUi;
+use crate::ui::typewriter;
 use crate::ui::typewriter::{Typewriter, TypingTimer};
 
 #[derive(Component)]
 pub struct DialogUi;
 
 #[derive(Debug, Default, Component)]
-pub struct Dialog;
+pub struct DialogText;
 
 pub fn dialog_ui_setup(
     mut commands: Commands,
@@ -25,6 +25,7 @@ pub fn dialog_ui_setup(
                 padding: UiRect::all(Val::Px(10.)),
                 ..default()
             },
+            visibility: Visibility { is_visible: false },
             color: Color::rgba(0.1, 0.1, 0.8, 0.9).into(),
             ..default()
         })
@@ -62,7 +63,7 @@ pub fn dialog_ui_setup(
             },
             ..default()
         })
-        .insert(Dialog::default())
+        .insert(DialogText::default())
         .insert(Typewriter::default())
         .id();
 

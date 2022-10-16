@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::ui::root_ui::RootUi;
+
 pub struct MainMenuBackgroundImage {
     image_handle: Handle<Image>,
 }
@@ -35,7 +37,11 @@ pub fn main_menu_background_setup(
         .insert(MainMenuBackground);
 }
 
-pub fn main_menu_ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn main_menu_ui_setup(
+    mut commands: Commands,
+    root: Res<RootUi>,
+    asset_server: Res<AssetServer>,
+) {
     let button_style = Style {
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
@@ -83,7 +89,8 @@ pub fn main_menu_ui_setup(mut commands: Commands, asset_server: Res<AssetServer>
         .insert(StartGameButton)
         .id();
 
+    commands.entity(root.entity).add_child(container_entity);
     commands
         .entity(container_entity)
-        .push_children(&[button_start_game_entity]);
+        .add_child(button_start_game_entity);
 }

@@ -1,5 +1,6 @@
 pub use bevy::prelude::*;
 
+use crate::ui::dialog::DialogUi;
 use crate::ui::typewriter::Typewriter;
 
 pub const MAIN_DIALOG_TEXT: [&str; 4] = [
@@ -24,17 +25,20 @@ impl Default for MainDialogStatus {
 }
 
 pub fn main_dialog_update(
+    mut dialog_ui_query: Query<&mut Visibility, With<DialogUi>>,
     mut query: Query<(&mut Text, &mut Typewriter)>,
     mut status: ResMut<MainDialogStatus>,
 ) {
+    let mut dialog_ui = dialog_ui_query.get_single_mut().unwrap();
     let (mut text, mut typewriter) = query.get_single_mut().unwrap();
-
     if typewriter.waited() {
         status.paragraph += 1;
         let paragraph = status.paragraph as usize;
         if paragraph >= MAIN_DIALOG_TEXT.len() {
+            dialog_ui.is_visible = false;
             status.finished = true;
         } else {
+            dialog_ui.is_visible = true;
             typewriter.reset();
             text.sections[0].value.clear();
             text.sections[1].value = MAIN_DIALOG_TEXT[paragraph].to_string();
