@@ -5,16 +5,18 @@ pub enum Biome {
     CERRADO,
     MATAATLANTICA,
     PAMPAS,
+    PANTANAL,
 }
 
 impl Biome {
     pub fn iterator() -> impl Iterator<Item = Biome> {
-        static BIOME: [Biome; 5] = [
+        static BIOME: [Biome; 6] = [
             Biome::PAMPAS,
             Biome::CERRADO,
             Biome::AMAZONIA,
             Biome::CAAATINGA,
             Biome::MATAATLANTICA,
+            Biome::PANTANAL,
         ];
         BIOME.iter().copied()
     }
@@ -28,6 +30,7 @@ impl std::fmt::Display for Biome {
             Self::CERRADO => write!(f, "cerrado"),
             Self::MATAATLANTICA => write!(f, "mataatlantica"),
             Self::PAMPAS => write!(f, "pampas"),
+            Self::PANTANAL => write!(f, "pantanal"),
         }
     }
 }

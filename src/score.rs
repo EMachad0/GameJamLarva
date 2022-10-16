@@ -37,16 +37,18 @@ pub struct BiomeScore {
     pub cerrado: u32,
     pub mataatlantica: u32,
     pub pampas: u32,
+    pub pantanal: u32,
 }
 
 impl BiomeScore {
-    pub fn array(&self) -> [u32; 5] {
+    pub fn array(&self) -> [u32; 6] {
         [
             self.amazonia,
             self.caatinga,
             self.cerrado,
             self.mataatlantica,
             self.pampas,
+            self.pantanal
         ]
     }
 }
@@ -54,12 +56,13 @@ impl BiomeScore {
 impl std::fmt::Display for BiomeScore {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, 
-            "Right Guesses for:\n\tamazonia: {}\n\tcaatinga: {}\n\terrado: {}\n\tmataatlantica: {}\n\tpampas: {}\n\t",
+            "Right Guesses for:\n\tamazonia: {}\n\tcaatinga: {}\n\tcerrado: {}\n\tmataatlantica: {}\n\tpampas: {}\n\tpantanal: {}\n\t",
             self.amazonia,
             self.caatinga,
             self.cerrado,
             self.mataatlantica,
-            self.pampas
+            self.pampas,
+            self.pantanal
         )
     }
 }
@@ -72,6 +75,7 @@ impl BiomeScore {
             Biome::CERRADO => self.cerrado += 1,
             Biome::MATAATLANTICA => self.mataatlantica += 1,
             Biome::PAMPAS => self.pampas += 1,
+            Biome::PANTANAL => self.pantanal += 1,
         }
     }
 }
