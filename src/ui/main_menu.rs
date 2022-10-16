@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::render::render_resource::ShaderType;
 
 use crate::ui::root_ui::RootUi;
 
