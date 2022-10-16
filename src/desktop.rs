@@ -12,7 +12,7 @@ const FOLDERS_LAYER: f32 = 1.0;
 const FOLDERS_SPACING: f32 = 90.0;
 
 #[derive(Component)]
-struct DesktopBackground;
+pub struct DesktopBackground;
 
 #[derive(Component)]
 pub struct Folder {

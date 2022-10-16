@@ -49,7 +49,7 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::MainMenu);
+    app.add_loopless_state(GameState::EndMenu);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
@@ -94,7 +94,9 @@ fn main() {
     )
     .add_enter_system_set(
         GameState::EndMenu,
-        SystemSet::new().with_system(ui::end_menu::end_game_ui_setup),
+        SystemSet::new()
+            .with_system(ui::end_menu::end_game_ui_setup)
+            .with_system(desktop::spawn_desktop_background),
     );
 
     // Exit Systems
@@ -111,6 +113,7 @@ fn main() {
     .add_exit_system_set(
         GameState::InGame,
         SystemSet::new()
+            .with_system(despawn::<desktop::DesktopBackground>)
             .with_system(despawn::<ui::game_timer::GameTimerUi>)
             .with_system(despawn::<image::SpawnedImage>)
             .with_system(despawn::<desktop::Folder>)
@@ -118,7 +121,9 @@ fn main() {
     )
     .add_exit_system_set(
         GameState::EndMenu,
-        SystemSet::new().with_system(despawn::<ui::end_menu::EndMenuUi>),
+        SystemSet::new()
+            .with_system(despawn::<desktop::DesktopBackground>)
+            .with_system(despawn::<ui::end_menu::EndMenuUi>),
     );
 
     // Systems
@@ -190,6 +195,17 @@ fn main() {
                     .run_if_not(ui::timer_dialog::timer_dialog_finished),
             )
             .with_system(game_state::to_end_menu.run_if(game_timer::game_timer_finished))
+            .into(),
+    )
+    // EndMenu
+    .add_system_set(
+        ConditionSet::new()
+            .run_in_state(GameState::EndMenu)
+            .with_system(ui::button::button_interaction_update)
+            .with_system(
+                game_state::to_main_menu
+                    .run_if(ui::button::on_button_interaction::<ui::end_menu::BackToMenuButton>),
+            )
             .into(),
     );
 
