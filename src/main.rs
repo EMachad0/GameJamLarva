@@ -33,8 +33,8 @@ fn main() {
         })
         .init_resource::<cursor_world_position::CursorWorldPosition>()
         .init_resource::<drag_and_drop::DraggingState>()
-        .insert_resource(ImageTimer(Timer::from_seconds(2.0, true)))
-        .init_resource::<score::Score>()
+        .insert_resource(ImageTimer(Timer::from_seconds(5.0, true)))
+        .init_resource::<score::Score>();
         .init_resource::<game_timer::PreGameTimer>()
         .init_resource::<game_timer::GameTimer>();
 
@@ -48,7 +48,7 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::MainMenu);
+    app.add_loopless_state(GameState::InGame);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
