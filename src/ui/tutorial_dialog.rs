@@ -3,9 +3,11 @@ pub use bevy::prelude::*;
 use crate::ui::dialog::DialogUi;
 use crate::ui::typewriter::Typewriter;
 
-pub const TUTORIAL_TEXT: [&str; 2] = [
+pub const TUTORIAL_TEXT: [&str; 4] = [
     "",
-    "Hmmmmm vamos ver, que tal esse DATASET? Araste as imagens até as pastas para clasificalas",
+    "Hmmmmm vamos ver, que tal esse DATASET? Araste as imagens ate as pastas para clasifica-las",
+    "Como voce e um ser capaz de APRENDIZADO um feedback e dado pela cor da pasta quando largar uma imagem nela",
+    "Boa Sorte"
 ];
 
 #[derive(Default)]
