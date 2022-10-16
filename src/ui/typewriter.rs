@@ -83,7 +83,7 @@ pub fn finished_typewriter_update(time: Res<Time>, mut query: Query<&mut Typewri
 
 pub fn to_typewriter_sections(original: TextSection) -> [TextSection; 2] {
     let mut invisible_style = original.style.clone();
-    invisible_style.color = Color::RED;
+    invisible_style.color = Color::NONE;
 
     [
         TextSection {

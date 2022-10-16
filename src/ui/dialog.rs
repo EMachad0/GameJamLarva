@@ -15,7 +15,7 @@ pub fn dialog_ui_setup(
     root: Res<RootUi>,
     asset_server: ResMut<AssetServer>,
 ) {
-    commands.insert_resource(TypingTimer(Timer::from_seconds(0.1, true)));
+    commands.insert_resource(TypingTimer(Timer::from_seconds(0.08, true)));
 
     let bg_entity = commands
         .spawn_bundle(NodeBundle {
