@@ -5,7 +5,6 @@ mod cursor_world_position;
 mod desktop;
 mod drag_and_drop;
 mod game_state;
-mod image_biome;
 mod image_spawner;
 mod ui;
 
@@ -135,7 +134,9 @@ fn main() {
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
             .with_system(image_spawner::spawn_image)
-            .with_system(image_spawner::drag_image_bring_foward)
+            .with_system(image_spawner::image_drag)
+            .with_system(desktop::hover_folder)
+            .with_system(image_spawner::image_drop)
             .into(),
     );
 

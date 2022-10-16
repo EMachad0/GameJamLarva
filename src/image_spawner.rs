@@ -3,13 +3,22 @@ use std::path::Path;
 const IMAGE_WIDTH: f32 = 300.0;
 const IMAGE_FIRST_LAYER: u32 = 2;
 
-use bevy::{prelude::*, transform};
-use rand::{seq::SliceRandom, thread_rng, Rng, distributions::Uniform};
+use bevy::prelude::*;
 
-use crate::{biome::Biome, drag_and_drop::{MouseInteractionBundle, StartDragEntity}, image_biome::ImageBiome};
+use rand::{distributions::Uniform, seq::SliceRandom, thread_rng, Rng};
+
+use crate::{
+    aabb::AABB,
+    biome::Biome,
+    cursor_world_position::CursorWorldPosition,
+    desktop::Folder,
+    drag_and_drop::{EndDragEntity, MouseInteractionBundle, StartDragEntity},
+};
 
 #[derive(Component)]
-pub struct ImageSpawned;
+pub struct SpawnedImage {
+    biome: Biome,
+}
 
 pub struct ImageTimer(pub Timer);
 
@@ -51,12 +60,55 @@ pub fn image_sizer(width: f32, height: f32) -> Vec2 {
     Vec2::new(IMAGE_WIDTH, IMAGE_WIDTH / (width / height))
 }
 
-pub fn drag_image_bring_foward(mut events: EventReader<StartDragEntity>, mut query: Query<(&mut ImageSpawned, &mut Transform)>, mut images_server: ResMut<ImagesServer>) {
+pub fn image_drag(
+    mut events: EventReader<StartDragEntity>,
+    mut query: Query<(&mut SpawnedImage, &mut Sprite, &mut Transform, &Children)>,
+    mut images_server: ResMut<ImagesServer>,
+) {
     for ev in events.iter() {
-        let (_, mut transform) = query.get_mut(ev.entity).unwrap();
+        let (_, mut sprite, mut transform, children) = match query.get_mut(ev.entity) {
+            Ok(entity) => entity,
+            Err(_) => continue,
+        };
 
         images_server.image_layer_count += 1;
         transform.translation.z = images_server.image_layer_count as f32;
+
+        sprite.color.set_a(0.2);
+    }
+}
+
+pub fn image_drop(
+    mut commands: Commands,
+    mut query_images: Query<(&mut SpawnedImage, &mut Children)>,
+    query_folders: Query<(&Folder, &AABB)>,
+    mut ev_drop: EventReader<EndDragEntity>,
+    cursor: Res<CursorWorldPosition>,
+) {
+    let cursor_position = match **cursor {
+        None => return,
+        Some(p) => p,
+    };
+
+    for ev in ev_drop.iter() {
+        let entity = ev.entity;
+
+        let (image, children) = match query_images.get_mut(ev.entity) {
+            Ok(entity) => entity,
+            Err(_) => continue,
+        };
+
+        for (folder, aabb) in query_folders.iter() {
+            if aabb.inside(cursor_position) {
+                println!("Image biome: {}", image.biome);
+                println!("Folder bione: {}", folder.biome);
+
+                for child in children.iter() {
+                    commands.entity(*child).despawn();
+                }
+                commands.entity(entity).despawn();
+            }
+        }
     }
 }
 
@@ -72,7 +124,7 @@ pub fn spawn_image(
 
         images_server.image_layer_count += 1;
 
-        let (image_s, image) = loop { 
+        let (image_s, image) = loop {
             let random_image = images_server.images.choose(&mut rng).unwrap();
 
             match assets.get(&random_image.image) {
@@ -86,13 +138,23 @@ pub fn spawn_image(
 
         let image_size = image_sizer(width, height);
 
-        let x_pos = rng.sample(Uniform::new(image_size.x / 2.0, 1280.0 - (image_size.x / 2.0))) as f32;
-        let y_pos = rng.sample(Uniform::new(image_size.y / 2.0, 720.0 - (image_size.x / 2.0))) as f32;
+        let x_pos = rng.sample(Uniform::new(
+            image_size.x / 2.0,
+            1280.0 - (image_size.x / 2.0),
+        )) as f32;
+        let y_pos = rng.sample(Uniform::new(
+            image_size.y / 2.0,
+            720.0 - (image_size.x / 2.0),
+        )) as f32;
 
         commands
             .spawn_bundle(SpriteBundle {
                 texture: image_s.image.clone(),
-                transform: Transform::from_xyz(x_pos, y_pos, images_server.image_layer_count as f32),
+                transform: Transform::from_xyz(
+                    x_pos,
+                    y_pos,
+                    images_server.image_layer_count as f32,
+                ),
                 sprite: Sprite {
                     custom_size: Some(image_size),
                     ..default()
@@ -110,11 +172,10 @@ pub fn spawn_image(
                     ..default()
                 });
             })
-            .insert(ImageBiome {
-                biome: image_s.biome,
-            })
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new("Imagem"))
-            .insert(ImageSpawned);
+            .insert(SpawnedImage {
+                biome: image_s.biome,
+            });
     }
 }

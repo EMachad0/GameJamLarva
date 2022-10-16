@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::drag_and_drop::MouseInteractionBundle;
+use crate::{drag_and_drop::{MouseInteractionBundle, StartDragEntity, EndDragEntity}, biome::Biome, cursor_world_position::CursorWorldPosition, aabb::AABB};
 
 const RECYCLE_BIN_POS: Vec2 = Vec2::new(60.0, 670.0);
 const FOLDERS_LAYER: f32 = 1.0;
@@ -10,10 +10,12 @@ const FOLDERS_SPACING: f32 = 90.0;
 struct DesktopBackground;
 
 #[derive(Component)]
-struct Folder;
+pub struct Folder {
+    pub biome: Biome,
+}
 
 #[derive(Component)]
-struct RecycleBin;
+pub struct RecycleBin;
 
 pub fn spawn_desktop_background(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
@@ -33,7 +35,8 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
     let x = RECYCLE_BIN_POS.x;
     let y = RECYCLE_BIN_POS.y - FOLDERS_SPACING;
 
-    for i in 0..5 {
+    let mut i = 0;
+    for biome in Biome::iterator() {
         commands
             .spawn_bundle(SpriteBundle {
                 texture: asset_server.load("img/folder.png"),
@@ -44,7 +47,7 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
                 folder.spawn_bundle(Text2dBundle {
                     transform: Transform::from_xyz(0.0, -52.0, FOLDERS_LAYER),
                     text: Text::from_section(
-                        format!("Folder {}", i),
+                        format!("{}", biome),
                         TextStyle {
                             font_size: 18.0,
                             font: asset_server.load("fonts/segoe_ui.ttf"),
@@ -55,9 +58,36 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 });
             })
-            .insert(Folder)
+            .insert(Folder {
+                biome
+            })
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new(format!("Folder {}", i)));
+        i += 1;
+    }
+}
+
+pub fn hover_folder(
+    mut query_folders: Query<(&mut Sprite, &AABB), With<Folder>>,
+    cursor: Res<CursorWorldPosition>,
+) {
+    let cursor_position = match **cursor {
+        None => return,
+        Some(p) => p,
+    };
+
+    for (mut sprite, aabb) in query_folders.iter_mut() {
+        *sprite = if aabb.inside(cursor_position) {
+            Sprite {
+                color: Color::BLUE,
+                ..default()
+            }
+        } else {
+            Sprite {
+                color: Color::WHITE,
+                ..default()
+            }
+        };
     }
 }
 
