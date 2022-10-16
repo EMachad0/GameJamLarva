@@ -49,7 +49,7 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::EndMenu);
+    app.add_loopless_state(GameState::MainMenu);
 
     // Plugins
     app.add_plugins(DefaultPlugins);

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::render::render_resource::ShaderType;
 
 use crate::ui::root_ui::RootUi;
 
@@ -52,7 +53,7 @@ pub fn main_menu_ui_setup(
     };
 
     let button_text_style = TextStyle {
-        font: asset_server.load("fonts/segoe_ui.ttf"),
+        font: asset_server.load("fonts/tahoma.ttf"),
         font_size: 24.0,
         color: Color::BLACK,
     };
@@ -60,30 +61,34 @@ pub fn main_menu_ui_setup(
     let container_entity = commands
         .spawn()
         .insert_bundle(NodeBundle {
-            color: UiColor(Color::rgb(0.5, 0.5, 0.5)),
             style: Style {
-                size: Size::new(Val::Auto, Val::Auto),
-                margin: UiRect::all(Val::Auto),
                 align_self: AlignSelf::Center,
-                flex_direction: FlexDirection::ColumnReverse,
-                //align_items: AlignItems::Stretch,
                 justify_content: JustifyContent::Center,
-                ..Default::default()
+                position_type: PositionType::Absolute,
+                position: UiRect {
+                    left: Val::Px(780.),
+                    right: Val::Undefined,
+                    top: Val::Px(380.),
+                    bottom: Val::Undefined,
+                },
+                ..default()
             },
-            ..Default::default()
+            color: Color::WHITE.into(),
+            ..default()
         })
         .insert(MainMenuUi)
+        .insert(Name::new("Main Menu UI"))
         .id();
 
     let button_start_game_entity = commands
         .spawn_bundle(ButtonBundle {
             style: button_style.clone(),
-            ..Default::default()
+            ..default()
         })
         .with_children(|btn| {
             btn.spawn_bundle(TextBundle {
                 text: Text::from_section("Start Game", button_text_style.clone()),
-                ..Default::default()
+                ..default()
             });
         })
         .insert(StartGameButton)
