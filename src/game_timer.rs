@@ -45,7 +45,6 @@ pub fn tick<R: Resource + Tickable>(time: Res<Time>, mut res: ResMut<R>) {
 }
 
 pub fn pre_game_timer_finished(timer: Res<PreGameTimer>) -> bool {
-    debug!("{:?}", timer);
     timer.finished()
 }
 

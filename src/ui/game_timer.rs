@@ -1,7 +1,7 @@
 use crate::game_timer::GameTimer;
 use bevy::prelude::*;
 
-use crate::root_ui::RootUi;
+use crate::ui::root_ui::RootUi;
 
 #[derive(Component)]
 pub struct GameTimerUi;
@@ -60,7 +60,6 @@ pub fn game_timer_ui_update(
     timer: Res<GameTimer>,
     mut query: Query<(&mut Text, &mut Visibility), With<GameTimerText>>,
 ) {
-    debug!("Hello");
     let remaining_time = timer.duration() - timer.elapsed();
     let sec = remaining_time.as_secs() % 60;
     let min = remaining_time.as_secs() / 60;
