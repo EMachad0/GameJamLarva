@@ -7,7 +7,7 @@ const FOLDERS_LAYER: f32 = 1.0;
 const FOLDERS_SPACING: f32 = 90.0;
 
 #[derive(Component)]
-struct DesktopBackgruound;
+struct DesktopBackground;
 
 #[derive(Component)]
 struct Folder;
@@ -25,7 +25,7 @@ pub fn spawn_desktop_background(mut commands: Commands, asset_server: Res<AssetS
             texture: asset_server.load("img/background/desktop_bg.png"),
             ..default()
         })
-        .insert(DesktopBackgruound {})
+        .insert(DesktopBackground)
         .insert(Name::new("DesktopBackground"));
 }
 
@@ -55,7 +55,7 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 });
             })
-            .insert(Folder {})
+            .insert(Folder)
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new(format!("Folder {}", i)));
     }
@@ -64,7 +64,7 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
 pub fn spawn_recycle_bin(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn()
-        .insert(RecycleBin {})
+        .insert(RecycleBin)
         .insert_bundle(SpriteBundle {
             texture: asset_server.load("img/recycle-bin.png"),
             transform: Transform::from_xyz(RECYCLE_BIN_POS.x, RECYCLE_BIN_POS.y, FOLDERS_LAYER),

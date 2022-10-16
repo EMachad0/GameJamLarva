@@ -1,12 +1,41 @@
 use bevy::prelude::*;
 
+pub struct MainMenuBackgroundImage {
+    image_handle: Handle<Image>,
+}
+
 #[derive(Component)]
-pub struct MainMenu;
+pub struct MainMenuBackground;
+
+#[derive(Component)]
+pub struct MainMenuUi;
 
 #[derive(Component)]
 pub struct StartGameButton;
 
-pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn main_menu_background_load(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let image_handle = asset_server.load("img/background/main_menu_bg.png");
+    commands.insert_resource(MainMenuBackgroundImage { image_handle });
+}
+
+pub fn main_menu_background_setup(
+    mut commands: Commands,
+    background: Res<MainMenuBackgroundImage>,
+) {
+    commands
+        .spawn()
+        .insert_bundle(SpriteBundle {
+            sprite: Sprite {
+                anchor: bevy::sprite::Anchor::BottomLeft,
+                ..default()
+            },
+            texture: background.image_handle.clone_weak(),
+            ..default()
+        })
+        .insert(MainMenuBackground);
+}
+
+pub fn main_menu_ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let button_style = Style {
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
@@ -22,8 +51,9 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         color: Color::BLACK,
     };
 
-    let main_menu_entity = commands
-        .spawn_bundle(NodeBundle {
+    let container_entity = commands
+        .spawn()
+        .insert_bundle(NodeBundle {
             color: UiColor(Color::rgb(0.5, 0.5, 0.5)),
             style: Style {
                 size: Size::new(Val::Auto, Val::Auto),
@@ -36,7 +66,7 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             ..Default::default()
         })
-        .insert(MainMenu)
+        .insert(MainMenuUi)
         .id();
 
     let button_start_game_entity = commands
@@ -54,6 +84,6 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .id();
 
     commands
-        .entity(main_menu_entity)
+        .entity(container_entity)
         .push_children(&[button_start_game_entity]);
 }

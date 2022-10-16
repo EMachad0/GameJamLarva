@@ -16,7 +16,7 @@ use bevy_inspector_egui::WorldInspectorPlugin;
 use image_spawner::ImageTimer;
 use iyes_loopless::prelude::*;
 
-use game_state::despawn_with;
+use game_state::despawn;
 use game_state::GameState;
 
 fn main() {
@@ -43,33 +43,57 @@ fn main() {
     app.add_event::<drag_and_drop::ClickEntity>()
         .add_event::<drag_and_drop::HoverEntity>()
         .add_event::<drag_and_drop::StartDragEntity>()
-        .add_event::<drag_and_drop::EndDragEntity>()
-        .add_event::<ui::typewriter::TypewriterFinished>();
+        .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::InGame);
+    app.add_loopless_state(GameState::MainMenu);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
 
     // Setup Systems
-    app.add_startup_system(camera::camera_setup)
-        .add_startup_system(drag_and_drop::squares_setup);
+    app.add_startup_system(camera::camera_setup);
+    app.add_startup_system_set(
+        SystemSet::new()
+            .with_system(ui::main_menu::main_menu_background_load)
+            .with_system(ui::loading::loading_background_load)
+            .with_system(image_spawner::load_images),
+    );
 
     // Enter Systems
-    app.add_enter_system(GameState::MainMenu, ui::main_menu::menu_setup)
-        .add_enter_system(GameState::MainDialog, ui::main_dialog::main_dialog_setup)
-        .add_enter_system_set(
-            GameState::InGame,
-            SystemSet::new()
-                .with_system(desktop::spawn_desktop_background)
-                .with_system(desktop::spawn_folders)
-                .with_system(desktop::spawn_recycle_bin)
-                .with_system(image_spawner::load_images),
-        );
+    app.add_enter_system_set(
+        GameState::MainMenu,
+        SystemSet::new()
+            .with_system(ui::main_menu::main_menu_background_setup)
+            .with_system(ui::main_menu::main_menu_ui_setup),
+    )
+    .add_enter_system_set(
+        GameState::MainDialog,
+        SystemSet::new()
+            .with_system(ui::loading::loading_background_setup)
+            .with_system(ui::main_dialog::main_dialog_ui_setup),
+    )
+    .add_enter_system_set(
+        GameState::InGame,
+        SystemSet::new()
+            .with_system(desktop::spawn_desktop_background)
+            .with_system(desktop::spawn_folders)
+            .with_system(desktop::spawn_recycle_bin),
+    );
 
     // Exit Systems
-    app.add_exit_system(GameState::MainMenu, despawn_with::<ui::main_menu::MainMenu>);
+    app.add_exit_system_set(
+        GameState::MainMenu,
+        SystemSet::new()
+            .with_system(despawn::<ui::main_menu::MainMenuBackground>)
+            .with_system(despawn::<ui::main_menu::MainMenuUi>),
+    )
+    .add_exit_system_set(
+        GameState::MainDialog,
+        SystemSet::new()
+            .with_system(despawn::<ui::loading::LoadingBackground>)
+            .with_system(despawn::<ui::main_dialog::MainDialogUi>),
+    );
 
     // Systems
     // MainMenu
@@ -88,9 +112,11 @@ fn main() {
         ConditionSet::new()
             .run_in_state(GameState::MainDialog)
             .with_system(ui::typewriter::typewriter_update)
+            .with_system(ui::typewriter::finished_typewriter_update)
+            .with_system(ui::typewriter::typewriter_skip_input)
             .with_system(
                 game_state::to_in_game
-                    .run_if(ui::typewriter::on_typewriter_finish::<ui::main_menu::StartGameButton>),
+                    .run_if(ui::typewriter::after_typewriter_finish::<ui::main_dialog::MainDialog>),
             )
             .into(),
     );
@@ -102,8 +128,8 @@ fn main() {
             .with_system(aabb::aabb_update)
             .with_system(cursor_world_position::cursor_world_position_update)
             .into(),
-    );
-    app.add_system_set(
+    )
+    .add_system_set(
         ConditionSet::new()
             .run_in_state(GameState::InGame)
             .with_system(drag_and_drop::mouse_click)
