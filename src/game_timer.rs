@@ -30,13 +30,13 @@ impl Tickable for GameTimer {
 
 pub fn pre_game_timer_setup(mut commands: Commands) {
     commands.insert_resource(PreGameTimer {
-        timer: Timer::new(Duration::from_secs(10), false),
+        timer: Timer::new(Duration::from_secs(20), false),
     });
 }
 
 pub fn game_timer_setup(mut commands: Commands) {
     commands.insert_resource(GameTimer {
-        timer: Timer::new(Duration::from_secs(300), false),
+        timer: Timer::new(Duration::from_secs(3 * 60), false),
     });
 }
 

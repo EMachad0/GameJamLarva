@@ -34,7 +34,7 @@ fn main() {
         .init_resource::<cursor_world_position::CursorWorldPosition>()
         .init_resource::<drag_and_drop::DraggingState>()
         .insert_resource(ImageTimer(Timer::from_seconds(5.0, true)))
-        .init_resource::<score::Score>();
+        .init_resource::<score::Score>()
         .init_resource::<game_timer::PreGameTimer>()
         .init_resource::<game_timer::GameTimer>();
 
@@ -145,14 +145,20 @@ fn main() {
             .with_system(ui::typewriter::typewriter_update)
             .with_system(ui::typewriter::finished_typewriter_update)
             .with_system(ui::typewriter::typewriter_skip_input)
-            .with_system(game_timer::tick::<game_timer::PreGameTimer>)
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
-            .with_system(image::spawn_image.run_if(ui::tutorial_dialog::tutorial_finished))
             .with_system(image::image_drag)
             .with_system(desktop::hover_folder)
             .with_system(image::image_drop)
             .with_system(image::sprite_alpha_update)
+            .into(),
+    )
+    .add_system_set(
+        ConditionSet::new()
+            .run_in_state(GameState::InGame)
+            .run_if(ui::tutorial_dialog::tutorial_finished)
+            .with_system(image::spawn_image)
+            .with_system(game_timer::tick::<game_timer::PreGameTimer>)
             .into(),
     )
     .add_system_set(

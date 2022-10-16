@@ -67,7 +67,7 @@ pub fn game_timer_ui_update(
     let (mut text, mut visibility) = query
         .get_single_mut()
         .expect("Unable to find game timer text");
-    text.sections[2].value = sec.to_string();
+    text.sections[2].value = format!("{:02}", sec);
     text.sections[0].value = min.to_string();
     visibility.is_visible = true;
 }
