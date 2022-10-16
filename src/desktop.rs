@@ -101,7 +101,6 @@ pub fn hover_folder(
 pub fn spawn_recycle_bin(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn()
-        .insert(RecycleBin)
         .insert_bundle(SpriteBundle {
             texture: asset_server.load("img/recycle-bin.png"),
             transform: Transform::from_xyz(RECYCLE_BIN_POS.x, RECYCLE_BIN_POS.y, FOLDERS_LAYER),
@@ -126,5 +125,7 @@ pub fn spawn_recycle_bin(mut commands: Commands, asset_server: Res<AssetServer>)
                 ..default()
             });
         })
+        .insert(RecycleBin)
+        .insert_bundle(MouseInteractionBundle::default())
         .insert(Name::new("Recycle Bin"));
 }

@@ -11,7 +11,7 @@ use crate::{
     aabb::AABB,
     biome::Biome,
     cursor_world_position::CursorWorldPosition,
-    desktop::{Folder, Frame},
+    desktop::{Folder, Frame, RecycleBin},
     drag_and_drop::{DraggingState, EndDragEntity, MouseInteractionBundle, StartDragEntity},
     score::Score,
 };
@@ -99,6 +99,7 @@ pub fn image_drop(
     mut commands: Commands,
     mut query_images: Query<(&SpawnedImage, &mut Sprite, &Children)>,
     query_folders: Query<(&Folder, &AABB)>,
+    query_recycle_bin: Query<(&RecycleBin, &AABB), Without<Folder>>,
     mut ev_drop: EventReader<EndDragEntity>,
     cursor: Res<CursorWorldPosition>,
     mut score: ResMut<Score>,
@@ -121,9 +122,6 @@ pub fn image_drop(
         for (folder, aabb) in query_folders.iter() {
             if aabb.inside(cursor_position) {
                 disappeared = true;
-
-                println!("Image biome: {}", image.biome);
-                println!("Folder bione: {}", folder.biome);
                 score_bookkeeper(&image.biome, &folder.biome, &mut score);
 
                 for child in children.iter() {
@@ -131,6 +129,19 @@ pub fn image_drop(
                 }
                 commands.entity(entity).despawn();
                 break;
+            }
+        }
+
+        if !disappeared {
+            for (_, aabb) in query_recycle_bin.iter() {
+                if aabb.inside(cursor_position) {
+                    disappeared = true;
+                
+                    for child in children.iter() {
+                        commands.entity(*child).despawn();
+                    }
+                    commands.entity(entity).despawn();
+                }
             }
         }
 
@@ -148,7 +159,6 @@ fn score_bookkeeper(biome_guessed: &Biome, actual_biome: &Biome, score: &mut Sco
     } else {
         score.mistakes += 1;
     }
-    debug!("{}", score);
 }
 
 pub fn spawn_image(
