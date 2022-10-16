@@ -24,7 +24,7 @@ pub struct MouseInteractionBundle {
 
 #[derive(Debug, Default, Deref, DerefMut)]
 pub struct DraggingState {
-    entity: Option<Entity>,
+    pub entity: Option<Entity>,
 }
 
 #[derive(Debug)]

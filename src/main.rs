@@ -8,8 +8,6 @@ mod game_state;
 mod image_spawner;
 mod ui;
 
-use std::time::Duration;
-
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use image_spawner::ImageTimer;
@@ -135,6 +133,7 @@ fn main() {
             .with_system(image_spawner::image_drag)
             .with_system(desktop::hover_folder)
             .with_system(image_spawner::image_drop)
+            .with_system(image_spawner::sprite_alpha_update)
             .into(),
     );
 
