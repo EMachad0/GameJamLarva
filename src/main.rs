@@ -46,7 +46,7 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::MainMenu);
+    app.add_loopless_state(GameState::InGame);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
@@ -135,6 +135,7 @@ fn main() {
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
             .with_system(image_spawner::spawn_image)
+            .with_system(image_spawner::drag_image_bring_foward)
             .into(),
     );
 

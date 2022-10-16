@@ -1,12 +1,15 @@
-use std::{path::Path, time::Duration};
+use std::path::Path;
 
 const IMAGE_WIDTH: f32 = 300.0;
 const IMAGE_FIRST_LAYER: u32 = 2;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, transform};
 use rand::{seq::SliceRandom, thread_rng, Rng, distributions::Uniform};
 
-use crate::{biome::Biome, drag_and_drop::MouseInteractionBundle, image_biome::ImageBiome};
+use crate::{biome::Biome, drag_and_drop::{MouseInteractionBundle, StartDragEntity}, image_biome::ImageBiome};
+
+#[derive(Component)]
+pub struct ImageSpawned;
 
 pub struct ImageTimer(pub Timer);
 
@@ -48,6 +51,15 @@ pub fn image_sizer(width: f32, height: f32) -> Vec2 {
     Vec2::new(IMAGE_WIDTH, IMAGE_WIDTH / (width / height))
 }
 
+pub fn drag_image_bring_foward(mut events: EventReader<StartDragEntity>, mut query: Query<(&mut ImageSpawned, &mut Transform)>, mut images_server: ResMut<ImagesServer>) {
+    for ev in events.iter() {
+        let (_, mut transform) = query.get_mut(ev.entity).unwrap();
+
+        images_server.image_layer_count += 1;
+        transform.translation.z = images_server.image_layer_count as f32;
+    }
+}
+
 pub fn spawn_image(
     mut commands: Commands,
     mut images_server: ResMut<ImagesServer>,
@@ -73,8 +85,6 @@ pub fn spawn_image(
         let height = image.texture_descriptor.size.height as f32;
 
         let image_size = image_sizer(width, height);
-
-        println!("{}, {}", image_size.x, image_size.y);
 
         let x_pos = rng.sample(Uniform::new(image_size.x / 2.0, 1280.0 - (image_size.x / 2.0))) as f32;
         let y_pos = rng.sample(Uniform::new(image_size.y / 2.0, 720.0 - (image_size.x / 2.0))) as f32;
@@ -104,6 +114,7 @@ pub fn spawn_image(
                 biome: image_s.biome,
             })
             .insert_bundle(MouseInteractionBundle::default())
-            .insert(Name::new("Imagem"));
+            .insert(Name::new("Imagem"))
+            .insert(ImageSpawned);
     }
 }
