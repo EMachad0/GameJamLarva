@@ -5,12 +5,13 @@ mod cursor_world_position;
 mod desktop;
 mod drag_and_drop;
 mod game_state;
-mod image_spawner;
+mod image;
 mod ui;
+mod score;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use image_spawner::ImageTimer;
+use image::ImageTimer;
 use iyes_loopless::prelude::*;
 
 use game_state::despawn;
@@ -31,7 +32,8 @@ fn main() {
         })
         .init_resource::<cursor_world_position::CursorWorldPosition>()
         .init_resource::<drag_and_drop::DraggingState>()
-        .insert_resource(ImageTimer(Timer::from_seconds(2.0, true)));
+        .insert_resource(ImageTimer(Timer::from_seconds(2.0, true)))
+        .init_resource::<score::Score>();
 
     // Types
     app.register_type::<aabb::AABB>();
@@ -54,7 +56,7 @@ fn main() {
         SystemSet::new()
             .with_system(ui::main_menu::main_menu_background_load)
             .with_system(ui::loading::loading_background_load)
-            .with_system(image_spawner::load_images),
+            .with_system(image::load_images),
     );
 
     // Enter Systems
@@ -75,7 +77,8 @@ fn main() {
         SystemSet::new()
             .with_system(desktop::spawn_desktop_background)
             .with_system(desktop::spawn_folders)
-            .with_system(desktop::spawn_recycle_bin),
+            .with_system(desktop::spawn_recycle_bin)
+            .with_system(score::start_score),
     );
 
     // Exit Systems
@@ -129,11 +132,11 @@ fn main() {
             .run_in_state(GameState::InGame)
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
-            .with_system(image_spawner::spawn_image)
-            .with_system(image_spawner::image_drag)
+            .with_system(image::spawn_image)
+            .with_system(image::image_drag)
             .with_system(desktop::hover_folder)
-            .with_system(image_spawner::image_drop)
-            .with_system(image_spawner::sprite_alpha_update)
+            .with_system(image::image_drop)
+            .with_system(image::sprite_alpha_update)
             .into(),
     );
 

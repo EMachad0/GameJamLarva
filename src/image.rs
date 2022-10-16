@@ -13,6 +13,7 @@ use crate::{
     cursor_world_position::CursorWorldPosition,
     desktop::{Folder, Frame},
     drag_and_drop::{DraggingState, EndDragEntity, MouseInteractionBundle, StartDragEntity},
+    score::Score,
 };
 
 #[derive(Component)]
@@ -56,7 +57,7 @@ pub fn load_images(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 // Sets the width size of the image and maintains the aspect ratio
-pub fn image_sizer(width: f32, height: f32) -> Vec2 {
+fn image_sizer(width: f32, height: f32) -> Vec2 {
     Vec2::new(IMAGE_WIDTH, IMAGE_WIDTH / (width / height))
 }
 
@@ -100,6 +101,7 @@ pub fn image_drop(
     query_folders: Query<(&Folder, &AABB)>,
     mut ev_drop: EventReader<EndDragEntity>,
     cursor: Res<CursorWorldPosition>,
+    mut score: ResMut<Score>,
 ) {
     for ev in ev_drop.iter() {
         let cursor_position = match **cursor {
@@ -122,6 +124,7 @@ pub fn image_drop(
 
                 println!("Image biome: {}", image.biome);
                 println!("Folder bione: {}", folder.biome);
+                score_bookkeeper(&image.biome, &folder.biome, &mut score);
 
                 for child in children.iter() {
                     commands.entity(*child).despawn();
@@ -137,14 +140,28 @@ pub fn image_drop(
     }
 }
 
+fn score_bookkeeper(biome_guessed: &Biome, actual_biome: &Biome, score: &mut Score) {
+    if biome_guessed == actual_biome {
+        score.total += 1;
+
+        score.biome_score.increment_biome(biome_guessed);
+    } else {
+        score.mistakes += 1;
+    }
+    debug!("{}", score);
+}
+
 pub fn spawn_image(
     mut commands: Commands,
     mut images_server: ResMut<ImagesServer>,
     assets: Res<Assets<Image>>,
     mut timer: ResMut<ImageTimer>,
     time: Res<Time>,
+    mut score: ResMut<Score>,
 ) {
     if timer.0.tick(time.delta()).just_finished() {
+        score.images_spawned += 1;
+
         let mut rng = thread_rng();
 
         images_server.image_layer_count += 1;
