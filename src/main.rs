@@ -34,7 +34,10 @@ fn main() {
         .init_resource::<drag_and_drop::DraggingState>()
         .init_resource::<score::Score>()
         .init_resource::<game_timer::PreGameTimer>()
-        .init_resource::<game_timer::GameTimer>();
+        .init_resource::<game_timer::GameTimer>()
+        .init_resource::<ui::main_dialog::MainDialogStatus>()
+        .init_resource::<ui::tutorial_dialog::TutorialDialogStatus>()
+        .init_resource::<ui::timer_dialog::TimerDialogStatus>();
 
     // Types
     app.register_type::<aabb::AABB>();
@@ -46,7 +49,7 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::InGame);
+    app.add_loopless_state(GameState::MainMenu);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
@@ -88,6 +91,10 @@ fn main() {
             .with_system(desktop::spawn_folders)
             .with_system(desktop::spawn_recycle_bin)
             .with_system(score::start_score),
+    )
+    .add_enter_system_set(
+        GameState::EndMenu,
+        SystemSet::new().with_system(ui::end_menu::end_game_ui_setup),
     );
 
     // Exit Systems
@@ -100,6 +107,18 @@ fn main() {
     .add_exit_system_set(
         GameState::MainDialog,
         SystemSet::new().with_system(despawn::<ui::loading::LoadingBackground>),
+    )
+    .add_exit_system_set(
+        GameState::InGame,
+        SystemSet::new()
+            .with_system(despawn::<ui::game_timer::GameTimerUi>)
+            .with_system(despawn::<image::SpawnedImage>)
+            .with_system(despawn::<desktop::Folder>)
+            .with_system(despawn::<desktop::RecycleBin>),
+    )
+    .add_exit_system_set(
+        GameState::EndMenu,
+        SystemSet::new().with_system(despawn::<ui::end_menu::EndMenuUi>),
     );
 
     // Systems
@@ -170,6 +189,7 @@ fn main() {
                 ui::timer_dialog::timer_dialog_update
                     .run_if_not(ui::timer_dialog::timer_dialog_finished),
             )
+            .with_system(game_state::to_end_menu.run_if(game_timer::game_timer_finished))
             .into(),
     );
 

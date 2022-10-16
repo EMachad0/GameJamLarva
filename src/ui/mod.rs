@@ -8,3 +8,4 @@ pub mod root_ui;
 pub mod timer_dialog;
 pub mod tutorial_dialog;
 pub mod typewriter;
+pub mod end_menu;

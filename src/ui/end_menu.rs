@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::biome::Biome;
 use crate::score::Score;
 use crate::ui::root_ui::RootUi;
 
@@ -16,9 +17,11 @@ pub fn end_game_ui_setup(
 
     let report_text_style = TextStyle {
         font: font.clone(),
-        font_size: 60.0,
+        font_size: 80.0,
         color: Color::BLACK,
     };
+
+    let biome_scores = Biome::iterator().zip(score.biome_score.array());
 
     let container = commands
         .spawn_bundle(NodeBundle {
@@ -70,7 +73,7 @@ pub fn end_game_ui_setup(
                     ..default()
                 });
             });
-            for _ in 0..5 {
+            for (biome, score) in biome_scores {
                 bg.spawn_bundle(NodeBundle {
                     style: Style {
                         margin: UiRect::all(Val::Px(5.)),
@@ -88,6 +91,7 @@ pub fn end_game_ui_setup(
                     size: Size::new(Val::Percent(100.), Val::Undefined),
                     min_size: Size::new(Val::Undefined, Val::Percent(20.)),
                     flex_grow: 1.0,
+                    align_items: AlignItems::Center,
                     justify_content: JustifyContent::SpaceEvenly,
                     ..default()
                 },
@@ -96,17 +100,21 @@ pub fn end_game_ui_setup(
             })
             .with_children(|total| {
                 total.spawn_bundle(TextBundle {
-                    text: Text::from_sections([
-                        TextSection::new("Total: ", report_text_style.clone()),
-                        TextSection::new(
-                            format!("{}/{}", score.total, score.images_spawned),
-                            report_text_style.clone(),
-                        ),
-                        TextSection::new(
-                            format!(" {:.0}%", score.images_spawned as f32 / score.total as f32),
-                            report_text_style.clone(),
-                        ),
-                    ]),
+                    text: Text::from_section("Total: ", report_text_style.clone()),
+                    ..default()
+                });
+                total.spawn_bundle(TextBundle {
+                    text: Text::from_section(
+                        format!("{}/{}", score.total, score.images_spawned),
+                        report_text_style.clone(),
+                    ),
+                    ..default()
+                });
+                total.spawn_bundle(TextBundle {
+                    text: Text::from_section(
+                        format!(" {:.0}%", score.total_accuracy()),
+                        report_text_style.clone(),
+                    ),
                     ..default()
                 });
             });

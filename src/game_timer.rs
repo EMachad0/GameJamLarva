@@ -36,7 +36,7 @@ pub fn pre_game_timer_setup(mut commands: Commands) {
 
 pub fn game_timer_setup(mut commands: Commands) {
     commands.insert_resource(GameTimer {
-        timer: Timer::new(Duration::from_secs(3 * 60), false),
+        timer: Timer::new(Duration::from_secs(5), false),
     });
 }
 

@@ -39,6 +39,18 @@ pub struct BiomeScore {
     pub pampas: u32,
 }
 
+impl BiomeScore {
+    pub fn array(&self) -> [u32; 5] {
+        [
+            self.amazonia,
+            self.caatinga,
+            self.cerrado,
+            self.mataatlantica,
+            self.pampas,
+        ]
+    }
+}
+
 impl std::fmt::Display for BiomeScore {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, 
