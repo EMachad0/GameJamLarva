@@ -45,7 +45,7 @@ fn main() {
         .add_event::<drag_and_drop::EndDragEntity>();
 
     // Stages
-    app.add_loopless_state(GameState::InGame);
+    app.add_loopless_state(GameState::MainDialog);
 
     // Plugins
     app.add_plugins(DefaultPlugins);
@@ -70,11 +70,14 @@ fn main() {
         GameState::MainDialog,
         SystemSet::new()
             .with_system(ui::loading::loading_background_setup)
-            .with_system(ui::main_dialog::main_dialog_ui_setup),
+            .with_system(ui::dialog::dialog_ui_setup)
+            .with_system(game_state::init_resource::<ui::main_dialog::MainDialogStatus>),
     )
     .add_enter_system_set(
         GameState::InGame,
         SystemSet::new()
+            .with_system(ui::dialog::dialog_ui_setup)
+            .with_system(game_state::init_resource::<ui::tutorial::TutorialStatus>)
             .with_system(desktop::spawn_desktop_background)
             .with_system(desktop::spawn_folders)
             .with_system(desktop::spawn_recycle_bin)
@@ -92,7 +95,7 @@ fn main() {
         GameState::MainDialog,
         SystemSet::new()
             .with_system(despawn::<ui::loading::LoadingBackground>)
-            .with_system(despawn::<ui::main_dialog::MainDialogUi>),
+            .with_system(despawn::<ui::dialog::DialogUi>),
     );
 
     // Systems
@@ -130,10 +133,15 @@ fn main() {
     .add_system_set(
         ConditionSet::new()
             .run_in_state(GameState::InGame)
+            .with_system(despawn::<ui::dialog::DialogUi>.run_if(ui::tutorial::tutorial_finished))
+            .with_system(ui::tutorial::tutorial_update.run_if_not(ui::tutorial::tutorial_finished))
+            .with_system(ui::typewriter::typewriter_update)
+            .with_system(ui::typewriter::finished_typewriter_update)
+            .with_system(ui::typewriter::typewriter_skip_input)
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
-            .with_system(image::spawn_image)
-            .with_system(image::image_drag)
+            .with_system(image_spawner::spawn_image.run_if(ui::tutorial::tutorial_finished))
+            .with_system(image_spawner::image_drag)
             .with_system(desktop::hover_folder)
             .with_system(image::image_drop)
             .with_system(image::sprite_alpha_update)
