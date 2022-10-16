@@ -6,7 +6,7 @@ use crate::ui::typewriter::Typewriter;
 pub const TUTORIAL_TEXT: [&str; 3] = [
     "",
     "Facil, nao?",
-    "Que tal mais rapido...           e contra o tempo",
+    "Que tal mais rapido...                                      e contra o tempo",
 ];
 
 #[derive(Default)]
