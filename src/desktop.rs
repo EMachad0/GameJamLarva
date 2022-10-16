@@ -17,6 +17,8 @@ struct DesktopBackground;
 #[derive(Component)]
 pub struct Folder {
     pub biome: Biome,
+    pub state: Option<bool>,
+    pub state_timer: Option<Timer>,
 }
 
 #[derive(Component)]
@@ -66,15 +68,20 @@ pub fn spawn_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 });
             })
-            .insert(Folder { biome })
+            .insert(Folder {
+                biome,
+                state: None,
+                state_timer: None,
+            })
             .insert_bundle(MouseInteractionBundle::default())
             .insert(Name::new(format!("Folder {}", i)));
         i += 1;
     }
 }
 
-pub fn hover_folder(
-    mut query_folders: Query<(&mut Sprite, &AABB), With<Folder>>,
+pub fn folder_state_coloring(
+    mut query: Query<(&mut Folder, &mut Sprite, &AABB)>, 
+    time: Res<Time>,
     dragging_state: ResMut<DraggingState>,
     cursor: Res<CursorWorldPosition>,
 ) {
@@ -83,18 +90,33 @@ pub fn hover_folder(
         Some(p) => p,
     };
 
-    for (mut sprite, aabb) in query_folders.iter_mut() {
-        *sprite = if aabb.inside(cursor_position) && dragging_state.entity.is_some() {
-            Sprite {
-                color: Color::BLUE,
-                ..default()
-            }
-        } else {
-            Sprite {
-                color: Color::WHITE,
-                ..default()
-            }
-        };
+    for (mut folder, mut sprite, aabb) in query.iter_mut() {
+        match folder.state {
+            Some(state) => {
+                match folder.state_timer.as_mut() {
+                    Some(timer) => {
+                        if timer.tick(time.delta()).just_finished() {
+                            folder.state = None;
+                            folder.state_timer = None;
+                        } else {
+                            sprite.color = if state {
+                                Color::GREEN
+                            } else {
+                                Color::RED
+                            }
+                        }
+                    },
+                    None => {}
+                }
+            },
+            None => {
+                sprite.color = if aabb.inside(cursor_position) && dragging_state.entity.is_some() {
+                    Color::BLUE
+                } else {
+                    Color::WHITE
+                };
+            },
+        }
     }
 }
 

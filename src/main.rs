@@ -12,7 +12,6 @@ mod ui;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use image::ImageTimer;
 use iyes_loopless::prelude::*;
 
 use game_state::despawn;
@@ -33,7 +32,6 @@ fn main() {
         })
         .init_resource::<cursor_world_position::CursorWorldPosition>()
         .init_resource::<drag_and_drop::DraggingState>()
-        .insert_resource(ImageTimer(Timer::from_seconds(5.0, true)))
         .init_resource::<score::Score>()
         .init_resource::<game_timer::PreGameTimer>()
         .init_resource::<game_timer::GameTimer>();
@@ -80,6 +78,7 @@ fn main() {
     .add_enter_system_set(
         GameState::InGame,
         SystemSet::new()
+            .with_system(game_state::init_resource::<image::ImageTimer>)
             .with_system(game_state::init_resource::<ui::tutorial_dialog::TutorialDialogStatus>)
             .with_system(game_state::init_resource::<ui::timer_dialog::TimerDialogStatus>)
             .with_system(game_timer::pre_game_timer_setup)
@@ -148,9 +147,9 @@ fn main() {
             .with_system(drag_and_drop::mouse_click)
             .with_system(drag_and_drop::draggable_update)
             .with_system(image::image_drag)
-            .with_system(desktop::hover_folder)
             .with_system(image::image_drop)
             .with_system(image::sprite_alpha_update)
+            .with_system(desktop::folder_state_coloring)
             .into(),
     )
     .add_system_set(

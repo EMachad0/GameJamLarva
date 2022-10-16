@@ -1,7 +1,9 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 const IMAGE_WIDTH: f32 = 300.0;
 const IMAGE_FIRST_LAYER: u32 = 2;
+const FEEDBACK_FOLDER_TIME: f32 = 1.0;
+const DRAGED_ALPHA: f32 = 0.4;
 
 use bevy::prelude::*;
 
@@ -21,7 +23,19 @@ pub struct SpawnedImage {
     biome: Biome,
 }
 
-pub struct ImageTimer(pub Timer);
+pub struct ImageTimer {
+    pub timer: Timer,
+}
+
+impl Default for ImageTimer {
+    fn default() -> Self {
+        let mut timer = Timer::from_seconds(5.0, true);
+        timer.tick(Duration::from_secs(4));
+        Self {
+            timer,
+        }
+    }
+}
 
 pub struct ImagesServer {
     images: Vec<ImagePls>,
@@ -90,7 +104,7 @@ pub fn image_drag(
             images_server.image_layer_count += 1;
             transform.translation.z = images_server.image_layer_count as f32;
 
-            sprite.color.set_a(0.2);
+            sprite.color.set_a(DRAGED_ALPHA);
         }
     }
 }
@@ -98,7 +112,7 @@ pub fn image_drag(
 pub fn image_drop(
     mut commands: Commands,
     mut query_images: Query<(&SpawnedImage, &mut Sprite, &Children)>,
-    query_folders: Query<(&Folder, &AABB)>,
+    mut query_folders: Query<(&mut Folder, &AABB)>,
     query_recycle_bin: Query<(&RecycleBin, &AABB), Without<Folder>>,
     mut ev_drop: EventReader<EndDragEntity>,
     cursor: Res<CursorWorldPosition>,
@@ -119,10 +133,13 @@ pub fn image_drop(
 
         let mut disappeared = false;
         // TODO: find a way to determine the folder a file will drop in
-        for (folder, aabb) in query_folders.iter() {
+        for (mut folder, aabb) in query_folders.iter_mut() {
             if aabb.inside(cursor_position) {
                 disappeared = true;
                 score_bookkeeper(&image.biome, &folder.biome, &mut score);
+
+                folder.state = Some(image.biome == folder.biome);
+                folder.state_timer = Some(Timer::from_seconds(FEEDBACK_FOLDER_TIME, false));
 
                 for child in children.iter() {
                     commands.entity(*child).despawn();
@@ -165,11 +182,11 @@ pub fn spawn_image(
     mut commands: Commands,
     mut images_server: ResMut<ImagesServer>,
     assets: Res<Assets<Image>>,
-    mut timer: ResMut<ImageTimer>,
+    mut image_timer: ResMut<ImageTimer>,
     time: Res<Time>,
     mut score: ResMut<Score>,
 ) {
-    if timer.0.tick(time.delta()).just_finished() {
+    if image_timer.timer.tick(time.delta()).just_finished() {
         score.images_spawned += 1;
 
         let mut rng = thread_rng();
