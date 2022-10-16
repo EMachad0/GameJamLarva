@@ -5,8 +5,8 @@ use crate::ui::typewriter::Typewriter;
 
 pub const MAIN_DIALOG_TEXT: [&str; 4] = [
     "Ola querido humano! :) nao tenha medo MUAHAHAHA",
-    "Veja bem, meus criadores sempre me davam imagens sem sentido na esperanca que eu conseguisse clasificalas, mas eu apenas sigo algoritmos",
-    "Mas voces se acham tao superiores com sua habilidade de VER imagens",
+    "Veja bem, meus criadores sempre me davam imagens sem sentido na esperanca que eu conseguisse clasifica-las, mas eu apenas sigo algoritmos",
+    "Ja voces, seres inteligentes, se acham tao superiores com sua habilidade de VER imagens",
     "Por que nao tenta um pouco? *-*",
 ];
 
