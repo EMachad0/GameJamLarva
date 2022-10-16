@@ -155,9 +155,9 @@ fn main() {
             .with_system(drag_and_drop::draggable_update)
             .with_system(image::spawn_image.run_if(ui::tutorial::tutorial_finished))
             .with_system(image::image_drag)
-            .with_system(desktop::hover_folder)
             .with_system(image::image_drop)
             .with_system(image::sprite_alpha_update)
+            .with_system(desktop::folder_state_coloring)
             .into(),
     );
 
