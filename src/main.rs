@@ -113,10 +113,8 @@ fn main() {
             .with_system(ui::typewriter::typewriter_update)
             .with_system(ui::typewriter::finished_typewriter_update)
             .with_system(ui::typewriter::typewriter_skip_input)
-            .with_system(
-                game_state::to_in_game
-                    .run_if(ui::typewriter::after_typewriter_finish::<ui::main_dialog::MainDialog>),
-            )
+            .with_system(ui::main_dialog::main_dialog_update)
+            .with_system(game_state::to_in_game.run_if(ui::main_dialog::main_dialog_finished))
             .into(),
     );
     // InGame
