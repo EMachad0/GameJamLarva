@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 const IMAGE_WIDTH: f32 = 300.0;
 const IMAGE_FIRST_LAYER: u32 = 2;
@@ -21,7 +21,19 @@ pub struct SpawnedImage {
     biome: Biome,
 }
 
-pub struct ImageTimer(pub Timer);
+pub struct ImageTimer {
+    pub timer: Timer,
+}
+
+impl Default for ImageTimer {
+    fn default() -> Self {
+        let mut timer = Timer::from_seconds(5.0, true);
+        timer.tick(Duration::from_secs(4));
+        Self {
+            timer,
+        }
+    }
+}
 
 pub struct ImagesServer {
     images: Vec<ImagePls>,
@@ -165,11 +177,11 @@ pub fn spawn_image(
     mut commands: Commands,
     mut images_server: ResMut<ImagesServer>,
     assets: Res<Assets<Image>>,
-    mut timer: ResMut<ImageTimer>,
+    mut image_timer: ResMut<ImageTimer>,
     time: Res<Time>,
     mut score: ResMut<Score>,
 ) {
-    if timer.0.tick(time.delta()).just_finished() {
+    if image_timer.timer.tick(time.delta()).just_finished() {
         score.images_spawned += 1;
 
         let mut rng = thread_rng();

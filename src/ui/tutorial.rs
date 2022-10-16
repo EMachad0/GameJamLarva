@@ -1,6 +1,8 @@
+use std::time::Duration;
+
 pub use bevy::prelude::*;
 
-use crate::ui::typewriter::Typewriter;
+use crate::{ui::typewriter::Typewriter, image::ImageTimer};
 
 pub const TUTORIAL_TEXT: [&str; 2] = [
     "",

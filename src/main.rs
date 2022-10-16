@@ -12,7 +12,6 @@ mod score;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use image::ImageTimer;
 use iyes_loopless::prelude::*;
 
 use game_state::despawn;
@@ -33,7 +32,7 @@ fn main() {
         })
         .init_resource::<cursor_world_position::CursorWorldPosition>()
         .init_resource::<drag_and_drop::DraggingState>()
-        .insert_resource(ImageTimer(Timer::from_seconds(5.0, true)))
+        // .init_resource::<image::ImageTimer>()
         .init_resource::<score::Score>();
 
     // Types
@@ -78,6 +77,7 @@ fn main() {
     .add_enter_system_set(
         GameState::InGame,
         SystemSet::new()
+            .with_system(game_state::init_resource::<image::ImageTimer>)    
             .with_system(game_state::init_resource::<ui::tutorial::TutorialStatus>)
             .with_system(game_timer::pre_game_timer_setup)
             .with_system(game_timer::game_timer_setup)
