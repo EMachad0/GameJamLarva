@@ -20,6 +20,17 @@ impl Biome {
         ];
         BIOME.iter().copied()
     }
+
+    pub fn as_label(&self) -> &str {
+        match self {
+            Biome::AMAZONIA => "Amazonia",
+            Biome::CAAATINGA => "Caatinga",
+            Biome::CERRADO => "Cerrado",
+            Biome::MATAATLANTICA => "Mata Atlantica",
+            Biome::PAMPAS => "Pampas",
+            Biome::PANTANAL => "Pantanal",
+        }
+    }
 }
 
 impl std::fmt::Display for Biome {

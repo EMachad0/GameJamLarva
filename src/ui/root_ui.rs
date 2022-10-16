@@ -23,6 +23,7 @@ pub fn ui_setup(mut commands: Commands) {
             ..default()
         })
         .insert(RootUiComponent)
+        .insert(Name::new("UI Root"))
         .id();
 
     commands.insert_resource(RootUi { entity });

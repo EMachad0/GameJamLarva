@@ -30,6 +30,7 @@ pub fn dialog_ui_setup(
             ..default()
         })
         .insert(DialogUi)
+        .insert(Name::new("Dialog UI"))
         .id();
 
     let portrait = commands

@@ -96,8 +96,3 @@ pub fn to_typewriter_sections(original: TextSection) -> [TextSection; 2] {
         },
     ]
 }
-
-pub fn after_typewriter_finish<C: Component>(query: Query<&Typewriter, With<C>>) -> bool {
-    let typewriter = query.get_single().expect("entity without typewriter");
-    typewriter.waited()
-}
