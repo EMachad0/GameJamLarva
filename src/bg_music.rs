@@ -19,7 +19,7 @@ pub fn play_intro_music(music_state: Res<MusicState>, background: Res<AudioChann
     background.stop();
     background
         .play(music_state.intro_music.clone())
-        .with_volume(0.2)
+        .with_volume(0.1)
         .looped();
 }
 
@@ -27,6 +27,6 @@ pub fn play_in_game_music(music_state: Res<MusicState>, background: Res<AudioCha
     background.stop();
     background
         .play(music_state.in_game_music.clone())
-        .with_volume(0.1)
+        .with_volume(0.02)
         .looped();
 }
