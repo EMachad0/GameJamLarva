@@ -4,6 +4,7 @@ const IMAGE_WIDTH: f32 = 300.0;
 const IMAGE_FIRST_LAYER: u32 = 2;
 const FEEDBACK_FOLDER_TIME: f32 = 1.0;
 const DRAGED_ALPHA: f32 = 0.4;
+const IMAGE_TIMER: f32 = 5.0;
 
 use bevy::prelude::*;
 
@@ -29,10 +30,8 @@ pub struct ImageTimer {
 
 impl Default for ImageTimer {
     fn default() -> Self {
-        let mut timer = Timer::from_seconds(5.0, true);
-        timer.tick(Duration::from_secs(4));
         Self {
-            timer,
+            timer: Timer::from_seconds(IMAGE_TIMER, true),
         }
     }
 }
@@ -175,6 +174,78 @@ fn score_bookkeeper(biome_guessed: &Biome, actual_biome: &Biome, score: &mut Sco
         score.biome_score.increment_biome(biome_guessed);
     } else {
         score.mistakes += 1;
+    }
+}
+
+pub fn spawn_image_when_no_image(
+    mut commands: Commands, 
+    query: Query<&mut SpawnedImage>,
+    mut score: ResMut<Score>,
+    mut images_server: ResMut<ImagesServer>,
+    assets: Res<Assets<Image>>,
+) {
+    if query.is_empty() {
+        score.images_spawned += 1;
+
+        let mut rng = thread_rng();
+
+        images_server.image_layer_count += 1;
+
+        let (image_s, image) = loop {
+            let random_image = images_server.images.choose(&mut rng).unwrap();
+
+            match assets.get(&random_image.image) {
+                Some(image) => break (random_image, image),
+                None => continue,
+            }
+        };
+
+        let width = image.texture_descriptor.size.width as f32;
+        let height = image.texture_descriptor.size.height as f32;
+
+        let image_size = image_sizer(width, height);
+
+        let x_pos = rng.sample(Uniform::new(
+            image_size.x / 2.0,
+            1280.0 - (image_size.x / 2.0),
+        )) as f32;
+        let y_pos = rng.sample(Uniform::new(
+            image_size.y / 2.0,
+            720.0 - (image_size.x / 2.0),
+        )) as f32;
+
+        commands
+            .spawn_bundle(SpriteBundle {
+                texture: image_s.image.clone(),
+                transform: Transform::from_xyz(
+                    x_pos,
+                    y_pos,
+                    images_server.image_layer_count as f32,
+                ),
+                sprite: Sprite {
+                    custom_size: Some(image_size),
+                    ..default()
+                },
+                ..default()
+            })
+            .with_children(|image| {
+                image
+                    .spawn_bundle(SpriteBundle {
+                        texture: images_server.frame.clone(),
+                        transform: Transform::from_xyz(0.0, 10.0, -0.5),
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(image_size.x + 5.0, image_size.y + 25.0)),
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .insert(Frame);
+            })
+            .insert_bundle(MouseInteractionBundle::default())
+            .insert(Name::new("Imagem"))
+            .insert(SpawnedImage {
+                biome: image_s.biome,
+            });
     }
 }
 

@@ -186,6 +186,7 @@ fn main() {
             .with_system(image::image_drop)
             .with_system(image::sprite_alpha_update)
             .with_system(desktop::folder_state_coloring)
+            .with_system(image::spawn_image_when_no_image)
             .into(),
     )
     .add_system_set(
