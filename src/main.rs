@@ -9,8 +9,10 @@ mod game_timer;
 mod image;
 mod score;
 mod ui;
+mod bg_music;
 
 use bevy::prelude::*;
+use bevy_kira_audio::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use iyes_loopless::prelude::*;
 
@@ -37,7 +39,8 @@ fn main() {
         .init_resource::<game_timer::GameTimer>()
         .init_resource::<ui::main_dialog::MainDialogStatus>()
         .init_resource::<ui::tutorial_dialog::TutorialDialogStatus>()
-        .init_resource::<ui::timer_dialog::TimerDialogStatus>();
+        .init_resource::<ui::timer_dialog::TimerDialogStatus>()
+        .init_resource::<bg_music::MusicState>();
 
     // Types
     app.register_type::<aabb::AABB>();
@@ -53,6 +56,10 @@ fn main() {
 
     // Plugins
     app.add_plugins(DefaultPlugins);
+    app.add_plugin(AudioPlugin);
+
+    // Audio Channels
+    app.add_audio_channel::<bg_music::Background>();
 
     // Setup Systems
     app.add_startup_system_to_stage(StartupStage::PreStartup, camera::camera_setup)
@@ -64,7 +71,8 @@ fn main() {
                 .with_system(ui::portrait::portrait_images_load)
                 .with_system(ui::main_menu::main_menu_background_load)
                 .with_system(ui::loading::loading_background_load)
-                .with_system(image::load_images),
+                .with_system(image::load_images)
+                .with_system(bg_music::load_music),
         );
 
     // Enter Systems
@@ -72,13 +80,14 @@ fn main() {
         GameState::MainMenu,
         SystemSet::new()
             .with_system(ui::main_menu::main_menu_background_setup)
-            .with_system(ui::main_menu::main_menu_ui_setup),
+            .with_system(ui::main_menu::main_menu_ui_setup)
+            .with_system(bg_music::play_intro_music),
     )
     .add_enter_system_set(
         GameState::MainDialog,
         SystemSet::new()
             .with_system(ui::loading::loading_background_setup)
-            .with_system(game_state::init_resource::<ui::main_dialog::MainDialogStatus>),
+            .with_system(game_state::init_resource::<ui::main_dialog::MainDialogStatus>)
     )
     .add_enter_system_set(
         GameState::InGame,
@@ -92,7 +101,8 @@ fn main() {
             .with_system(desktop::spawn_desktop_background)
             .with_system(desktop::spawn_folders)
             .with_system(desktop::spawn_recycle_bin)
-            .with_system(score::start_score),
+            .with_system(score::start_score)
+            .with_system(bg_music::play_in_game_music),
     )
     .add_enter_system_set(
         GameState::EndMenu,
