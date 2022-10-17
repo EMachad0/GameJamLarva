@@ -1,4 +1,4 @@
-use std::{path::Path, time::Duration};
+use std::path::Path;
 
 const IMAGE_WIDTH: f32 = 300.0;
 const IMAGE_FIRST_LAYER: u32 = 2;
