@@ -175,14 +175,14 @@ pub fn end_game_ui_setup(
                 });
                 total.spawn_bundle(TextBundle {
                     text: Text::from_section(
-                        format!("{}/{}", score.total, score.images_spawned),
+                        format!("{}/{}", score.right, score.images_spawned),
                         total_report_ts.clone(),
                     ),
                     ..default()
                 });
                 total.spawn_bundle(TextBundle {
                     text: Text::from_section(
-                        format!(" {:.0}%", score.total_accuracy()),
+                        format!(" {:.0}%", score.total_accuracy() * 100.),
                         total_report_ts.clone(),
                     ),
                     ..default()

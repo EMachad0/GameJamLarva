@@ -5,27 +5,27 @@ use crate::biome::Biome;
 
 #[derive(Default)]
 pub struct Score {
-    pub total: u32,
+    pub right: u32,
+    pub wrong: u32,
     pub images_spawned: u32,
-    pub mistakes: u32,
     pub biome_score: BiomeScore,
 }
 
 impl Score {
     pub fn total_accuracy(&self) -> f32 {
-        self.total as f32 / self.images_spawned as f32
+        self.right as f32 / self.images_spawned as f32
     }
 }
 
 impl std::fmt::Display for Score {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, 
-            "Score Total: {}\nNumber of Instances: {}\nClassified Wrong: {}\nTotal Accuracy: {}\n{}", 
-            self.total,
-            self.images_spawned,
-            self.mistakes,
-            self.total_accuracy(),
-            self.biome_score,
+        write!(f,
+               "Score Total: {}\nNumber of Instances: {}\nClassified Wrong: {}\nTotal Accuracy: {}\n{}",
+               self.right,
+               self.images_spawned,
+               self.wrong,
+               self.total_accuracy(),
+               self.biome_score,
         )
     }
 }
@@ -82,9 +82,9 @@ impl BiomeScore {
 
 impl Score {
     pub fn reset(&mut self) {
-        self.total = 0;
+        self.right = 0;
         self.images_spawned = 0;
-        self.mistakes = 0;
+        self.wrong = 0;
         self.biome_score = BiomeScore::default();
     }
 }

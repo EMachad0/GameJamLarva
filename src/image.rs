@@ -170,11 +170,11 @@ pub fn image_drop(
 
 fn score_bookkeeper(biome_guessed: &Biome, actual_biome: &Biome, score: &mut Score) {
     if biome_guessed == actual_biome {
-        score.total += 1;
+        score.right += 1;
 
         score.biome_score.increment_biome(biome_guessed);
     } else {
-        score.mistakes += 1;
+        score.wrong += 1;
     }
 }
 

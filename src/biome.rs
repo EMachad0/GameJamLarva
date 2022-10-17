@@ -11,11 +11,11 @@ pub enum Biome {
 impl Biome {
     pub fn iterator() -> impl Iterator<Item = Biome> {
         static BIOME: [Biome; 6] = [
-            Biome::PAMPAS,
-            Biome::CERRADO,
             Biome::AMAZONIA,
             Biome::CAAATINGA,
+            Biome::CERRADO,
             Biome::MATAATLANTICA,
+            Biome::PAMPAS,
             Biome::PANTANAL,
         ];
         BIOME.iter().copied()
