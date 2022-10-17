@@ -1,4 +1,5 @@
 mod aabb;
+mod bg_music;
 mod biome;
 mod camera;
 mod cursor_world_position;
@@ -9,11 +10,10 @@ mod game_timer;
 mod image;
 mod score;
 mod ui;
-mod bg_music;
 
 use bevy::prelude::*;
-use bevy_kira_audio::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_kira_audio::prelude::*;
 use iyes_loopless::prelude::*;
 
 use game_state::despawn;
@@ -92,6 +92,7 @@ fn main() {
     .add_enter_system_set(
         GameState::InGame,
         SystemSet::new()
+            .with_system(game_state::init_resource::<drag_and_drop::DraggingState>)
             .with_system(game_state::init_resource::<image::ImageTimer>)
             .with_system(game_state::init_resource::<ui::tutorial_dialog::TutorialDialogStatus>)
             .with_system(game_state::init_resource::<ui::timer_dialog::TimerDialogStatus>)
