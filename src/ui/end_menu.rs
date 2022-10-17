@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::biome::Biome;
 use crate::score::Score;
+use crate::ui::button::ButtonImage;
 use crate::ui::root_ui::RootUi;
 
 #[derive(Component)]
@@ -15,6 +16,7 @@ pub fn end_game_ui_setup(
     root: Res<RootUi>,
     score: Res<Score>,
     asset_server: Res<AssetServer>,
+    button_images: Res<ButtonImage>,
 ) {
     let font = asset_server.load("fonts/tahoma.ttf");
 
@@ -202,6 +204,7 @@ pub fn end_game_ui_setup(
                 button_container
                     .spawn_bundle(ButtonBundle {
                         style: button_style.clone(),
+                        image: button_images.normal.clone().into(),
                         ..default()
                     })
                     .with_children(|btn| {

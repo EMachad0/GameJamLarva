@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::ui::button::ButtonImage;
 use crate::ui::root_ui::RootUi;
 
 pub struct MainMenuBackgroundImage {
@@ -41,13 +42,14 @@ pub fn main_menu_ui_setup(
     mut commands: Commands,
     root: Res<RootUi>,
     asset_server: Res<AssetServer>,
+    button_images: Res<ButtonImage>,
 ) {
     let button_style = Style {
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
         padding: UiRect::all(Val::Px(8.0)),
         margin: UiRect::all(Val::Px(4.0)),
-        size: Size::new(Val::Px(100.), Val::Px(30.)),
+        size: Size::new(Val::Px(130.), Val::Px(40.)),
         flex_grow: 1.0,
         ..Default::default()
     };
@@ -66,14 +68,14 @@ pub fn main_menu_ui_setup(
                 justify_content: JustifyContent::Center,
                 position_type: PositionType::Absolute,
                 position: UiRect {
-                    left: Val::Px(780.),
+                    left: Val::Px(770.),
                     right: Val::Undefined,
-                    top: Val::Px(380.),
+                    top: Val::Px(370.),
                     bottom: Val::Undefined,
                 },
                 ..default()
             },
-            color: Color::WHITE.into(),
+            color: Color::NONE.into(),
             ..default()
         })
         .insert(MainMenuUi)
@@ -83,6 +85,7 @@ pub fn main_menu_ui_setup(
     let button_start_game_entity = commands
         .spawn_bundle(ButtonBundle {
             style: button_style.clone(),
+            image: button_images.normal.clone().into(),
             ..default()
         })
         .with_children(|btn| {

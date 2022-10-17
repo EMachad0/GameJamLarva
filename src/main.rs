@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 mod aabb;
 mod bg_music;
 mod biome;
@@ -71,6 +73,7 @@ fn main() {
                 .with_system(ui::portrait::portrait_images_load)
                 .with_system(ui::main_menu::main_menu_background_load)
                 .with_system(ui::loading::loading_background_load)
+                .with_system(ui::button::button_image_load)
                 .with_system(image::load_images)
                 .with_system(bg_music::load_music),
         );
