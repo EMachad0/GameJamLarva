@@ -23,7 +23,7 @@ fn main() {
     // Resources
     app.insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
-            title: "Inverse Turing Test".to_string(),
+            title: "The OmegaAI Test for Brazilian Biome Image Classification".to_string(),
             width: 1280.0,
             height: 720.0,
             resizable: false,
