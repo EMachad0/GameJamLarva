@@ -80,14 +80,14 @@ fn main() {
         GameState::MainMenu,
         SystemSet::new()
             .with_system(ui::main_menu::main_menu_background_setup)
-            .with_system(ui::main_menu::main_menu_ui_setup)
-            .with_system(bg_music::play_intro_music),
+            .with_system(ui::main_menu::main_menu_ui_setup),
     )
     .add_enter_system_set(
         GameState::MainDialog,
         SystemSet::new()
             .with_system(ui::loading::loading_background_setup)
             .with_system(game_state::init_resource::<ui::main_dialog::MainDialogStatus>)
+            .with_system(bg_music::play_intro_music),
     )
     .add_enter_system_set(
         GameState::InGame,
