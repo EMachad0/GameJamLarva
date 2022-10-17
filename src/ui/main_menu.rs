@@ -47,6 +47,7 @@ pub fn main_menu_ui_setup(
         align_items: AlignItems::Center,
         padding: UiRect::all(Val::Px(8.0)),
         margin: UiRect::all(Val::Px(4.0)),
+        size: Size::new(Val::Px(100.), Val::Px(30.)),
         flex_grow: 1.0,
         ..Default::default()
     };

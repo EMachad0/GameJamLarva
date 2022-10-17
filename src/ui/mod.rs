@@ -1,11 +1,12 @@
 pub mod button;
 pub mod dialog;
+pub mod end_menu;
 pub mod game_timer;
 pub mod loading;
 pub mod main_dialog;
 pub mod main_menu;
+pub mod portrait;
 pub mod root_ui;
 pub mod timer_dialog;
 pub mod tutorial_dialog;
 pub mod typewriter;
-pub mod end_menu;

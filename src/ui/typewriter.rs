@@ -24,7 +24,7 @@ impl Typewriter {
 impl Default for Typewriter {
     fn default() -> Self {
         Self {
-            finish_wait_time: Duration::from_secs(1),
+            finish_wait_time: Duration::from_secs_f32(1.5),
             finished: Default::default(),
             time_since_finished: Default::default(),
         }

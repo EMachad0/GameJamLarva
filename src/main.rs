@@ -23,7 +23,7 @@ fn main() {
     // Resources
     app.insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
-            title: "TODO: ADD TITLE".to_string(),
+            title: "Inverse Turing Test".to_string(),
             width: 1280.0,
             height: 720.0,
             resizable: false,
@@ -57,9 +57,11 @@ fn main() {
     // Setup Systems
     app.add_startup_system_to_stage(StartupStage::PreStartup, camera::camera_setup)
         .add_startup_system_to_stage(StartupStage::PreStartup, ui::root_ui::ui_setup)
-        .add_startup_system(ui::dialog::dialog_ui_setup)
+        .add_startup_system_to_stage(StartupStage::PreStartup, ui::portrait::portrait_images_load)
         .add_startup_system_set(
             SystemSet::new()
+                .with_system(ui::dialog::dialog_ui_setup)
+                .with_system(ui::portrait::portrait_images_load)
                 .with_system(ui::main_menu::main_menu_background_load)
                 .with_system(ui::loading::loading_background_load)
                 .with_system(image::load_images),

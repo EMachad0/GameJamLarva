@@ -3,16 +3,16 @@ pub use bevy::prelude::*;
 use crate::ui::dialog::DialogUi;
 use crate::ui::typewriter::Typewriter;
 
-pub const TUTORIAL_TEXT: [&str; 4] = [
-    "",
-    "Hmmmmm vamos ver, que tal esse DATASET? Araste as imagens ate as pastas para clasifica-las",
-    "Como voce e um ser capaz de APRENDIZADO um feedback e dado pela cor da pasta quando largar uma imagem nela",
-    "Boa Sorte"
+const TEXT: [&str; 3] = [
+    "Hmmmmm vamos ver, que tal esse DATASET?\nAraste as imagens ate as pastas para clasifica-las",
+    "Como voce e um ser capaz de APRENDIZADO\na cor da pasta ao guardar uma imagen indica se voce\nERROU ou ACERTOU",
+    "Boa Sorte!"
 ];
 
 #[derive(Default)]
 pub struct TutorialDialogStatus {
     paragraph: usize,
+    started: bool,
     finished: bool,
 }
 
@@ -23,17 +23,20 @@ pub fn tutorial_dialog_update(
 ) {
     let mut dialog_ui = dialog_ui_query.get_single_mut().unwrap();
     let (mut text, mut typewriter) = query.get_single_mut().unwrap();
-
     if typewriter.waited() {
-        status.paragraph += 1;
-        if status.paragraph >= TUTORIAL_TEXT.len() {
+        if status.started {
+            status.paragraph += 1;
+        } else {
+            status.started = true;
+        }
+        if status.paragraph >= TEXT.len() {
             dialog_ui.is_visible = false;
             status.finished = true;
         } else {
             dialog_ui.is_visible = true;
             typewriter.reset();
             text.sections[0].value.clear();
-            text.sections[1].value = TUTORIAL_TEXT[status.paragraph].to_string();
+            text.sections[1].value = TEXT[status.paragraph].to_string();
         }
     }
 }
