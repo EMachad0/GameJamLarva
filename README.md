@@ -2,6 +2,8 @@
 
 [**PLAY**](https://emachado.itch.io/the-omegaai-test-for-brazilian-biome-image-classification)
 
+A Serious (yet fun) Game made in Rust with Bevy
+
 ## How well do you know the Brazilian biomes?
 
 Lore (Portuguese):
